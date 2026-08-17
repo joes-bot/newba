@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🏀 篮球组合分析 | 最强/最差二人组 + 三人组 + 智能查询</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #f1f5f9;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            margin: 0;
+            padding: 24px 20px;
+            color: #0f2b3d;
+        }
+        .container {
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+        .header-card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            padding: 22px 28px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(130deg, #1a5f7a, #2b9e6d);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin: 0 0 8px;
+        }
+        .sub {
+            color: #4b6b87;
+            border-left: 4px solid #2b9e6d;
+            padding-left: 16px;
+            margin: 6px 0 18px;
+        }
+        .file-area {
+            background: #f9fdfe;
+            border-radius: 28px;
+            padding: 16px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px;
+            justify-content: space-between;
+            border: 1px solid #e2edf2;
+        }
+        .upload-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .file-label {
+            background: #1e5c8b;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .file-label:hover {
+            background: #104b72;
+            transform: translateY(-1px);
+        }
+        #file-name {
+            font-size: 0.85rem;
+            color: #1f5e7e;
+            background: white;
+            padding: 5px 18px;
+            border-radius: 40px;
+            border: 1px solid #cfe0ea;
+        }
+        .stats-badge {
+            display: flex;
+            gap: 28px;
+            background: #eef3fc;
+            padding: 8px 24px;
+            border-radius: 60px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .stat-number {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #1f7a5c;
+        }
+        .info-note {
+            font-size: 0.75rem;
+            color: #5c6f87;
+            margin-top: 14px;
+            background: #eef3fc;
+            padding: 8px 18px;
+            border-radius: 28px;
+        }
+        .rank-card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 20px 28px 8px 28px;
+            border-bottom: 2px solid #eff3f8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-weight: 750;
+            font-size: 1.6rem;
+            background: linear-gradient(120deg, #1d6f5c, #298b6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .card-badge {
+            background: #eef2fa;
+            padding: 5px 16px;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1f607e;
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0f2f5;
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .toggle-switch input {
+            width: 36px;
+            height: 20px;
+            appearance: none;
+            background: #cbdde9;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toggle-switch input:checked {
+            background: #2b9e6d;
+        }
+        .toggle-switch input::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+        }
+        .toggle-switch input:checked::before {
+            left: 18px;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 4px 0 8px;
+        }
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 720px;
+        }
+        .ranking-table th {
+            background: #fafdff;
+            padding: 16px 18px;
+            text-align: left;
+            font-weight: 700;
+            color: #1e4a6e;
+            border-bottom: 2px solid #e2eaf0;
+        }
+        .ranking-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid #ecf3f8;
+            vertical-align: middle;
+        }
+        .ranking-table tr:hover td {
+            background-color: #fafeff;
+        }
+        .rank-cell {
+            font-weight: 800;
+            font-size: 1.2rem;
+            width: 70px;
+            color: #268e6c;
+        }
+        .pair-name, .triplet-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0f2b3d;
+        }
+        .pair-nickname {
+            font-size: 0.7rem;
+            color: #6f8eaa;
+            margin-top: 3px;
+        }
+        .badge-winrate {
+            background: #e0f3e9;
+            color: #187a56;
+            font-weight: 700;
+            border-radius: 40px;
+            padding: 4px 14px;
+            display: inline-block;
+        }
+        .badge-loser {
+            background: #ffe6e5;
+            color: #b33a34;
+            font-weight: 700;
+            border-radius: 40px;
+            padding: 4px 14px;
+        }
+        .games-count {
+            font-family: monospace;
+            font-weight: 600;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 48px 20px;
+            color: #7f9ab5;
+        }
+        .query-container, .triplet-query-container {
+            padding: 20px 28px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 24px;
+        }
+        .query-input-group {
+            flex: 1;
+            min-width: 180px;
+        }
+        .query-input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #2c5a7a;
+            margin-bottom: 8px;
+        }
+        .player-select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 32px;
+            border: 1px solid #cbdde9;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%234b6b87" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+        .query-btn {
+            background: #2b9e6d;
+            color: white;
+            border: none;
+            padding: 11px 36px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .query-btn:hover {
+            background: #1f7c55;
+            transform: translateY(-1px);
+        }
+        .query-result, .triplet-query-result {
+            background: #f1f9f4;
+            margin: 8px 28px 28px;
+            border-radius: 28px;
+            padding: 16px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        .result-stats {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+        .result-stat {
+            background: white;
+            padding: 6px 20px;
+            border-radius: 60px;
+        }
+        .result-stat span:first-child {
+            font-weight: 600;
+            color: #226688;
+            margin-right: 8px;
+        }
+        .result-stat span:last-child {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #1c6e43;
+        }
+        .error-msg {
+            color: #bc3f2e;
+            background: #ffefed;
+            padding: 12px 22px;
+            border-radius: 60px;
+            font-weight: 600;
+        }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #8aa4bb;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-card">
+        <h1>🏀 化学反应实验室 · 双人/三人统治力</h1>
+        <div class="sub">共同出战 ≥ 总场次50% 胜率排名 + 零胜率"黑洞组合" + 二人/三人组定制查询</div>
+        <div class="file-area">
+            <div class="upload-group">
+                <label class="file-label">
+                    📂 上传比赛 JSON
+                    <input type="file" id="upload-json" accept=".json" style="display: none;">
+                </label>
+                <span id="file-name">📄 默认数据 (17场)</span>
+            </div>
+            <div class="stats-badge">
+                <div class="stat-item">🏆 总场次: <span class="stat-number" id="total-games">-</span></div>
+                <div class="stat-item">🎯 门槛(≥50%): <span class="stat-number" id="threshold-games">-</span></div>
+                <div class="stat-item">📊 合格二人组: <span class="stat-number" id="qualified-pairs">-</span> / 三人组: <span class="stat-number" id="qualified-triplets">-</span></div>
+            </div>
+        </div>
+        <div class="info-note">
+            🔥 最强组合 = 同队胜率排名（二人组默认应用50%门槛）。<br>
+            💀 最差组合 = 胜率0% 且 共同场次最多的前5组。<br>
+            🎛️ 三人组可通过开关切换是否过滤50%场次（默认关闭，显示所有组合）。<br>
+            🔽 下拉框支持全量球员查询，二人组/三人组均不可选择重复球员。
+        </div>
+    </div>
+
+    <!-- 最强二人组 -->
+    <div class="rank-card">
+        <div class="card-header">
+            <h2>⚡ 最强二人组 · TOP 10</h2>
+            <div class="card-badge">共同出战 ≥ 总场次50%</div>
+        </div>
+        <div class="table-wrapper">
+            <table class="ranking-table">
+                <thead>
+                    <tr><th>排名</th><th>二人组 (真实姓名)</th><th>共同出战</th><th>胜场数</th><th>胜率</th></tr>
+                </thead>
+                <tbody id="pair-table-body"><tr><td colspan="5" class="empty-message">加载中...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 最强三人组（带开关） -->
+    <div class="rank-card">
+        <div class="card-header">
+            <h2>🎯 最强三人组 · TOP 10</h2>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div class="toggle-switch">
+                    <span>⚙️ 限制≥50%场次</span>
+                    <input type="checkbox" id="tripletFilterToggle">
+                </div>
+                <div class="card-badge" id="tripletFilterBadge">当前: 显示所有组合</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="ranking-table">
+                <thead>
+                    <tr><th>排名</th><th>三人组 (真实姓名)</th><th>共同出战</th><th>胜场数</th><th>胜率</th></tr>
+                </thead>
+                <tbody id="triplet-table-body"><tr><td colspan="5" class="empty-message">加载中...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 最差二人组 -->
+    <div class="rank-card">
+        <div class="card-header">
+            <h2>💀 最弱二人组 · 零胜率黑洞</h2>
+            <div class="card-badge">胜率0% | 共同场次最多 TOP5</div>
+        </div>
+        <div class="table-wrapper">
+            <table class="ranking-table">
+                <thead>
+                    <tr><th>排名</th><th>二人组 (真实姓名)</th><th>共同出战</th><th>胜场数</th><th>胜率</th></tr>
+                </thead>
+                <tbody id="worst-pair-body"><tr><td colspan="5" class="empty-message">分析中...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 任意二人组查询 -->
+    <div class="rank-card">
+        <div class="card-header">
+            <h2>🔍 指定二人组 · 胜率查询</h2>
+            <div class="card-badge">基于当前数据实时计算</div>
+        </div>
+        <div class="query-container">
+            <div class="query-input-group">
+                <label>👤 球员 A</label>
+                <select id="selectPlayerA" class="player-select"></select>
+            </div>
+            <div class="query-input-group">
+                <label>👥 球员 B</label>
+                <select id="selectPlayerB" class="player-select"></select>
+            </div>
+            <button class="query-btn" id="queryBtn">📊 查询胜率</button>
+        </div>
+        <div id="queryResult" class="query-result" style="display: none;"></div>
+    </div>
+
+    <!-- 任意三人组查询 -->
+    <div class="rank-card">
+        <div class="card-header">
+            <h2>🔍 指定三人组 · 胜率查询</h2>
+            <div class="card-badge">基于当前数据实时计算</div>
+        </div>
+        <div class="triplet-query-container">
+            <div class="query-input-group">
+                <label>👤 球员 A</label>
+                <select id="selectTripletA" class="player-select"></select>
+            </div>
+            <div class="query-input-group">
+                <label>👥 球员 B</label>
+                <select id="selectTripletB" class="player-select"></select>
+            </div>
+            <div class="query-input-group">
+                <label>👥 球员 C</label>
+                <select id="selectTripletC" class="player-select"></select>
+            </div>
+            <button class="query-btn" id="queryTripletBtn">🎯 查询三人组胜率</button>
+        </div>
+        <div id="tripletQueryResult" class="triplet-query-result" style="display: none;"></div>
+    </div>
+
+    <footer>⚡ 数据基于同队共同登场 | 二人/三人胜率 = 胜场/共同场次</footer>
+</div>
+
+<script>
+    // ---------- 球员真实姓名映射 ----------
+    const playerMap = new Map([
+        ["ANDY-陈","陈敬颂"],["water","钟水庭"],["白云飞","资云"],["陈颖华","陈颖华"],
+        ["邓波","邓蔬波"],["董克诚","董克诚"],["风","彭凌风"],["富升包装","马巧利"],["古月","胡国栋"],
+        ["方国初","方国初"],["洪公子","王洪"],["黄胜发","黄胜发"],["雷","雷祖华"],["龙A","龙建新"],
+        ["陆锦江","陆锦江"],["飘然","方冠英"],["王继鹏","王继鹏"],["文明","文明"],["娃哈哈","吴美元"],
+        ["吴亚军","吴亚军"],["小刘","刘秦军"],["谢宾","谢宾"],["杨华斌","杨华斌"],["张飞","张飞"],
+        ["郑家敏","郑家敏"],["谢清清","谢清清"],["黄达飞","黄达飞"],
+        ["方康","方康"],["墨竹","武建华"],["石向红","石向红"],["余再延","余再延"]
+    ]);
+    function getRealName(nick) { return playerMap.get(nick) || nick; }
+
+    // 所有球员列表 (去重排序)
+    const allPlayers = Array.from(playerMap.keys()).sort((a,b)=>getRealName(a).localeCompare(getRealName(b)));
+
+    // ---------- 工具函数 ----------
+    function getPairKey(a,b) { return a < b ? `${a};${b}` : `${b};${a}`; }
+    function getTripletKey(a,b,c) {
+        let arr = [a,b,c].sort();
+        return `${arr[0]};${arr[1]};${arr[2]}`;
+    }
+    function generatePairs(players) {
+        const res = [];
+        for (let i=0;i<players.length;i++)
+            for (let j=i+1;j<players.length;j++)
+                res.push({ a: players[i], b: players[j], key: getPairKey(players[i], players[j]) });
+        return res;
+    }
+    function generateTriplets(players) {
+        const res = [];
+        for (let i=0;i<players.length;i++)
+            for (let j=i+1;j<players.length;j++)
+                for (let k=j+1;k<players.length;k++) {
+                    let arr = [players[i], players[j], players[k]].sort();
+                    res.push({ p1: arr[0], p2: arr[1], p3: arr[2], key: `${arr[0]};${arr[1]};${arr[2]}` });
+                }
+        return res;
+    }
+
+    // 二人组统计
+    function computePairStats(games) {
+        const total = games.length;
+        const pairMap = new Map();
+        for (const g of games) {
+            const purple = g.purplePlayers || [], green = g.greenPlayers || [];
+            const purpleWin = g.winner === 'purple', greenWin = g.winner === 'green';
+            if (purple.length>=2) {
+                for (const p of generatePairs(purple)) {
+                    if (!pairMap.has(p.key)) pairMap.set(p.key, { a: p.a, b: p.b, apps:0, wins:0 });
+                    const rec = pairMap.get(p.key);
+                    rec.apps++;
+                    if (purpleWin) rec.wins++;
+                }
+            }
+            if (green.length>=2) {
+                for (const p of generatePairs(green)) {
+                    if (!pairMap.has(p.key)) pairMap.set(p.key, { a: p.a, b: p.b, apps:0, wins:0 });
+                    const rec = pairMap.get(p.key);
+                    rec.apps++;
+                    if (greenWin) rec.wins++;
+                }
+            }
+        }
+        return { pairMap, total };
+    }
+
+    function computeTripletStats(games) {
+        const total = games.length;
+        const tripMap = new Map();
+        for (const g of games) {
+            const purple = g.purplePlayers || [], green = g.greenPlayers || [];
+            const purpleWin = g.winner === 'purple', greenWin = g.winner === 'green';
+            if (purple.length>=3) {
+                for (const t of generateTriplets(purple)) {
+                    if (!tripMap.has(t.key)) tripMap.set(t.key, { p1:t.p1, p2:t.p2, p3:t.p3, apps:0, wins:0 });
+                    const rec = tripMap.get(t.key);
+                    rec.apps++;
+                    if (purpleWin) rec.wins++;
+                }
+            }
+            if (green.length>=3) {
+                for (const t of generateTriplets(green)) {
+                    if (!tripMap.has(t.key)) tripMap.set(t.key, { p1:t.p1, p2:t.p2, p3:t.p3, apps:0, wins:0 });
+                    const rec = tripMap.get(t.key);
+                    rec.apps++;
+                    if (greenWin) rec.wins++;
+                }
+            }
+        }
+        return { tripMap, total };
+    }
+
+    function getTopPairs(pairMap, totalGames) {
+        const minReq = Math.ceil(totalGames * 0.5);
+        const list = [];
+        for (const [key, stat] of pairMap.entries()) {
+            if (stat.apps >= minReq) list.push({ ...stat, winRate: stat.wins/stat.apps });
+        }
+        list.sort((a,b)=> {
+            if (Math.abs(a.winRate-b.winRate)>1e-7) return b.winRate - a.winRate;
+            if (a.wins !== b.wins) return b.wins - a.wins;
+            return b.apps - a.apps;
+        });
+        return list.slice(0,10);
+    }
+
+    // 三人组获取：支持 applyFilter 参数
+    function getTopTriplets(tripMap, totalGames, applyFilter) {
+        let list = [];
+        if (applyFilter) {
+            const minReq = Math.ceil(totalGames * 0.5);
+            for (const [key, stat] of tripMap.entries()) {
+                if (stat.apps >= minReq) list.push({ ...stat, winRate: stat.wins/stat.apps });
+            }
+        } else {
+            for (const [key, stat] of tripMap.entries()) {
+                list.push({ ...stat, winRate: stat.wins/stat.apps });
+            }
+        }
+        list.sort((a,b)=> {
+            if (Math.abs(a.winRate-b.winRate)>1e-7) return b.winRate - a.winRate;
+            if (a.wins !== b.wins) return b.wins - a.wins;
+            return b.apps - a.apps;
+        });
+        return list.slice(0,10);
+    }
+
+    function getWorstZeroPairs(pairMap) {
+        const zero = [];
+        for (const [key, stat] of pairMap.entries()) {
+            if (stat.wins === 0 && stat.apps > 0) zero.push({ ...stat, winRate:0 });
+        }
+        zero.sort((a,b)=> b.apps - a.apps);
+        return zero.slice(0,5);
+    }
+
+    // 全局数据引用
+    let currentGames = [];
+
+    // 渲染二人组（固定应用门槛）
+    function renderPairRanking(games) {
+        if (!games.length) {
+            document.getElementById('pair-table-body').innerHTML='<tr><td colspan="5" class="empty-message">暂无数据</td></tr>';
+            document.getElementById('qualified-pairs').innerText='0';
+            return;
+        }
+        const { pairMap, total } = computePairStats(games);
+        const topPairs = getTopPairs(pairMap, total);
+        document.getElementById('qualified-pairs').innerText = topPairs.length;
+        const tbody = document.getElementById('pair-table-body');
+        if (topPairs.length===0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-message">无二人组达到门槛(≥${Math.ceil(total*0.5)}场)</td></tr>`;
+            return;
+        }
+        let html = '';
+        topPairs.forEach((p,idx)=>{
+            const realA=getRealName(p.a), realB=getRealName(p.b);
+            const note = (playerMap.has(p.a)||playerMap.has(p.b))? ` (${p.a} · ${p.b})` : '';
+            html += `<tr>
+                <td class="rank-cell">#${idx+1}</td>
+                <td><div class="pair-name">${escapeHtml(realA)} & ${escapeHtml(realB)}</div><div class="pair-nickname">${escapeHtml(note)}</div></td>
+                <td class="games-count">${p.apps} 场</td>
+                <td>${p.wins} 胜</td>
+                <td><span class="badge-winrate">${(p.winRate*100).toFixed(1)}%</span></td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    // 渲染三人组（根据开关状态决定是否过滤）
+    function renderTripletRanking(games, applyFilter) {
+        if (!games.length) {
+            document.getElementById('triplet-table-body').innerHTML='<tr><td colspan="5" class="empty-message">暂无数据</td></tr>';
+            document.getElementById('qualified-triplets').innerText='0';
+            return;
+        }
+        const { tripMap, total } = computeTripletStats(games);
+        const topTriplets = getTopTriplets(tripMap, total, applyFilter);
+        document.getElementById('qualified-triplets').innerText = topTriplets.length;
+        const tbody = document.getElementById('triplet-table-body');
+        if (topTriplets.length===0) {
+            const msg = applyFilter ? `无三人组达到门槛(≥${Math.ceil(total*0.5)}场)` : '暂无三人组数据';
+            tbody.innerHTML = `<tr><td colspan="5" class="empty-message">${msg}</td></tr>`;
+            return;
+        }
+        let html = '';
+        topTriplets.forEach((t,idx)=>{
+            const r1=getRealName(t.p1), r2=getRealName(t.p2), r3=getRealName(t.p3);
+            const note = (playerMap.has(t.p1)||playerMap.has(t.p2)||playerMap.has(t.p3))? ` (${t.p1}, ${t.p2}, ${t.p3})` : '';
+            html += `<tr>
+                <td class="rank-cell">#${idx+1}</td>
+                <td><div class="triplet-name">${escapeHtml(r1)} · ${escapeHtml(r2)} · ${escapeHtml(r3)}</div><div class="pair-nickname">${escapeHtml(note)}</div></td>
+                <td class="games-count">${t.apps} 场</td>
+                <td>${t.wins} 胜</td>
+                <td><span class="badge-winrate">${(t.winRate*100).toFixed(1)}%</span></td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+        // 更新 badge 文字
+        const badge = document.getElementById('tripletFilterBadge');
+        if (badge) badge.innerText = applyFilter ? '当前: 仅显示≥50%场次' : '当前: 显示所有组合';
+    }
+
+    function renderWorstPairs(games) {
+        if (!games.length) {
+            document.getElementById('worst-pair-body').innerHTML='<tr><td colspan="5" class="empty-message">暂无数据</td></tr>';
+            return;
+        }
+        const { pairMap } = computePairStats(games);
+        const worst = getWorstZeroPairs(pairMap);
+        const tbody = document.getElementById('worst-pair-body');
+        if (worst.length===0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-message">✨ 没有零胜组合，每个组合至少赢过一场</td></tr>';
+            return;
+        }
+        let html = '';
+        worst.forEach((p,idx)=>{
+            const realA=getRealName(p.a), realB=getRealName(p.b);
+            const note = (playerMap.has(p.a)||playerMap.has(p.b))? ` (${p.a} · ${p.b})` : '';
+            html += `<tr>
+                <td class="rank-cell">💀 ${idx+1}</td>
+                <td><div class="pair-name">${escapeHtml(realA)} & ${escapeHtml(realB)}</div><div class="pair-nickname">${escapeHtml(note)}</div></td>
+                <td class="games-count">${p.apps} 场</td>
+                <td>0 胜</td>
+                <td><span class="badge-loser">0%</span></td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function updateGlobalStats(games) {
+        if (!games.length) {
+            document.getElementById('total-games').innerText='0';
+            document.getElementById('threshold-games').innerText='0';
+            return;
+        }
+        const total = games.length;
+        document.getElementById('total-games').innerText = total;
+        document.getElementById('threshold-games').innerText = Math.ceil(total*0.5);
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 全量刷新（二人组、最差、全局统计，三人组根据当前开关）
+    function refreshAll() {
+        if (!currentGames.length) return;
+        updateGlobalStats(currentGames);
+        renderPairRanking(currentGames);
+        renderWorstPairs(currentGames);
+        const filterEnabled = document.getElementById('tripletFilterToggle').checked;
+        renderTripletRanking(currentGames, filterEnabled);
+        document.getElementById('file-name').innerHTML = `📄 当前数据 (${currentGames.length}场)`;
+    }
+
+    // ========== 二人组下拉框联动 ==========
+    let selectA = document.getElementById('selectPlayerA');
+    let selectB = document.getElementById('selectPlayerB');
+
+    function buildSelectOptions(excludeValue, selectedValue) {
+        let html = '';
+        for (let nick of allPlayers) {
+            if (nick === excludeValue) continue;
+            const real = getRealName(nick);
+            const selected = (selectedValue === nick) ? 'selected' : '';
+            html += `<option value="${escapeHtml(nick)}" ${selected}>${escapeHtml(real)} (${nick})</option>`;
+        }
+        return html;
+    }
+
+    function refreshPairSelects() {
+        const curA = selectA.value;
+        const curB = selectB.value;
+        selectB.innerHTML = buildSelectOptions(curA, curB);
+        selectA.innerHTML = buildSelectOptions(curB, curA);
+        if (!selectA.value && selectA.options.length>0) selectA.value = selectA.options[0].value;
+        if (!selectB.value && selectB.options.length>0) selectB.value = selectB.options[0].value;
+    }
+
+    function initPairSelects() {
+        let allOpts = '';
+        for (let nick of allPlayers) {
+            allOpts += `<option value="${escapeHtml(nick)}">${escapeHtml(getRealName(nick))} (${nick})</option>`;
+        }
+        selectA.innerHTML = allOpts;
+        selectB.innerHTML = allOpts;
+        if (selectA.options.length>0) selectA.value = selectA.options[0].value;
+        if (selectB.options.length>1) selectB.value = selectB.options[1].value;
+        else if (selectB.options.length>0 && selectB.options[0].value !== selectA.value) selectB.value = selectB.options[0].value;
+        refreshPairSelects();
+    }
+
+    selectA.addEventListener('change', refreshPairSelects);
+    selectB.addEventListener('change', refreshPairSelects);
+
+    // 二人组查询
+    function queryPair(games) {
+        const nickA = selectA.value;
+        const nickB = selectB.value;
+        const resultDiv = document.getElementById('queryResult');
+        if (!nickA || !nickB || nickA === nickB) {
+            resultDiv.style.display = 'flex';
+            resultDiv.innerHTML = `<div class="error-msg">❌ 请选择两位不同的球员</div>`;
+            return;
+        }
+        const { pairMap } = computePairStats(games);
+        const key = getPairKey(nickA, nickB);
+        if (!pairMap.has(key)) {
+            resultDiv.style.display = 'flex';
+            resultDiv.innerHTML = `<div class="error-msg">❌ 组合 “${escapeHtml(getRealName(nickA))} (${escapeHtml(nickA)})” 与 “${escapeHtml(getRealName(nickB))} (${escapeHtml(nickB)})” 从未同队出战过。</div>`;
+            return;
+        }
+        const stat = pairMap.get(key);
+        const winPercent = (stat.wins/stat.apps*100).toFixed(1);
+        resultDiv.style.display = 'flex';
+        resultDiv.innerHTML = `
+            <div class="result-stats">
+                <div class="result-stat"><span>🏀 组合</span><span>${escapeHtml(getRealName(nickA))} & ${escapeHtml(getRealName(nickB))}</span></div>
+                <div class="result-stat"><span>📅 共同出战</span><span>${stat.apps} 场</span></div>
+                <div class="result-stat"><span>🏆 胜场数</span><span>${stat.wins} 胜</span></div>
+                <div class="result-stat"><span>📈 胜率</span><span>${winPercent}%</span></div>
+            </div>
+            <div class="pair-nickname">昵称: ${escapeHtml(nickA)} · ${escapeHtml(nickB)}</div>
+        `;
+    }
+
+    // ========== 三人组下拉框联动 ==========
+    let selectTriA = document.getElementById('selectTripletA');
+    let selectTriB = document.getElementById('selectTripletB');
+    let selectTriC = document.getElementById('selectTripletC');
+
+    function buildTripletOptions(excludeValues, selectedValue) {
+        let html = '';
+        for (let nick of allPlayers) {
+            if (excludeValues.includes(nick)) continue;
+            const real = getRealName(nick);
+            const selected = (selectedValue === nick) ? 'selected' : '';
+            html += `<option value="${escapeHtml(nick)}" ${selected}>${escapeHtml(real)} (${nick})</option>`;
+        }
+        return html;
+    }
+
+    function refreshTripletSelects() {
+        const curA = selectTriA.value;
+        const curB = selectTriB.value;
+        const curC = selectTriC.value;
+        selectTriB.innerHTML = buildTripletOptions([curA, curC], curB);
+        selectTriC.innerHTML = buildTripletOptions([curA, curB], curC);
+        selectTriA.innerHTML = buildTripletOptions([curB, curC], curA);
+        if (!selectTriA.value && selectTriA.options.length>0) selectTriA.value = selectTriA.options[0].value;
+        if (!selectTriB.value && selectTriB.options.length>0) selectTriB.value = selectTriB.options[0].value;
+        if (!selectTriC.value && selectTriC.options.length>0) selectTriC.value = selectTriC.options[0].value;
+    }
+
+    function initTripletSelects() {
+        let allOpts = '';
+        for (let nick of allPlayers) {
+            allOpts += `<option value="${escapeHtml(nick)}">${escapeHtml(getRealName(nick))} (${nick})</option>`;
+        }
+        selectTriA.innerHTML = allOpts;
+        selectTriB.innerHTML = allOpts;
+        selectTriC.innerHTML = allOpts;
+        if (selectTriA.options.length>0) selectTriA.value = selectTriA.options[0].value;
+        if (selectTriB.options.length>1) selectTriB.value = selectTriB.options[1].value;
+        if (selectTriC.options.length>2) selectTriC.value = selectTriC.options[2].value;
+        else if (selectTriC.options.length>0 && selectTriC.options[0].value !== selectTriA.value && selectTriC.options[0].value !== selectTriB.value) 
+            selectTriC.value = selectTriC.options[0].value;
+        refreshTripletSelects();
+    }
+
+    selectTriA.addEventListener('change', refreshTripletSelects);
+    selectTriB.addEventListener('change', refreshTripletSelects);
+    selectTriC.addEventListener('change', refreshTripletSelects);
+
+    function queryTriplet(games) {
+        const nickA = selectTriA.value;
+        const nickB = selectTriB.value;
+        const nickC = selectTriC.value;
+        const resultDiv = document.getElementById('tripletQueryResult');
+        if (!nickA || !nickB || !nickC) {
+            resultDiv.style.display = 'flex';
+            resultDiv.innerHTML = `<div class="error-msg">❌ 请完整选择三名球员</div>`;
+            return;
+        }
+        if (nickA === nickB || nickA === nickC || nickB === nickC) {
+            resultDiv.style.display = 'flex';
+            resultDiv.innerHTML = `<div class="error-msg">❌ 三名球员必须不同，请重新选择</div>`;
+            return;
+        }
+        const { tripMap } = computeTripletStats(games);
+        const key = getTripletKey(nickA, nickB, nickC);
+        if (!tripMap.has(key)) {
+            resultDiv.style.display = 'flex';
+            resultDiv.innerHTML = `<div class="error-msg">❌ 组合 “${escapeHtml(getRealName(nickA))} (${escapeHtml(nickA)}) / ${escapeHtml(getRealName(nickB))} (${escapeHtml(nickB)}) / ${escapeHtml(getRealName(nickC))} (${escapeHtml(nickC)})” 从未同队出战过。</div>`;
+            return;
+        }
+        const stat = tripMap.get(key);
+        const winPercent = (stat.wins/stat.apps*100).toFixed(1);
+        resultDiv.style.display = 'flex';
+        resultDiv.innerHTML = `
+            <div class="result-stats">
+                <div class="result-stat"><span>🏀 三人组</span><span>${escapeHtml(getRealName(nickA))} · ${escapeHtml(getRealName(nickB))} · ${escapeHtml(getRealName(nickC))}</span></div>
+                <div class="result-stat"><span>📅 共同出战</span><span>${stat.apps} 场</span></div>
+                <div class="result-stat"><span>🏆 胜场数</span><span>${stat.wins} 胜</span></div>
+                <div class="result-stat"><span>📈 胜率</span><span>${winPercent}%</span></div>
+            </div>
+            <div class="pair-nickname">昵称: ${escapeHtml(nickA)} · ${escapeHtml(nickB)} · ${escapeHtml(nickC)}</div>
+        `;
+    }
+
+    // ---------- 默认完整数据 (17场) ----------
+    const DEFAULT_GAMES = [
+        {"date":"2026-05-05","winner":"green","purplePlayers":["白云飞","古月","小刘","杨华斌","董克诚","吴亚军","谢清清"],"greenPlayers":["洪公子","富升包装","雷","陈颖华","郑家敏","王继鹏","陆锦江"]},
+        {"date":"2026-04-26","winner":"purple","purplePlayers":["方康","郑家敏","飘然","陈颖华","董克诚","方国初","谢清清"],"greenPlayers":["富升包装","洪公子","吴亚军","water","王继鹏","黄达飞","墨竹","小刘"]},
+        {"date":"2026-04-19","winner":"purple","purplePlayers":["黄达飞","方康","water","文明","张飞","陈颖华","小刘","雷","白云飞","洪公子"],"greenPlayers":["ANDY-陈","风","古月","吴亚军","方国初","郑家敏","富升包装","谢清清","龙A","董克诚"]},
+        {"date":"2026-04-12","winner":"green","purplePlayers":["董克诚","石向红","古月","文明","陈颖华","谢清清","water","洪公子","雷","张飞","白云飞"],"greenPlayers":["吴亚军","风","杨华斌","富升包装","郑家敏","小刘","飘然","方康","龙A","黄达飞","谢宾"]},
+        {"date":"2026-04-06","winner":"purple","purplePlayers":["古月","黄达飞","雷","谢宾","方国初","洪公子","吴亚军","龙A","张飞"],"greenPlayers":["方康","小刘","王继鹏","墨竹","董克诚","谢清清","白云飞","邓波"]},
+        {"date":"2026-03-29","winner":"green","purplePlayers":["飘然","方康","雷","方国初","water","小刘","洪公子","龙A","古月","黄达飞","王继鹏"],"greenPlayers":["陈颖华","吴亚军","富升包装","墨竹","娃哈哈","石向红","ANDY-陈","谢清清","白云飞","郑家敏","董克诚"]},
+        {"date":"2026-03-27","winner":"purple","purplePlayers":["白云飞","谢清清","古月","小刘","ANDY-陈","董克诚","吴亚军","石向红"],"greenPlayers":["富升包装","谢宾","张飞","墨竹","郑家敏","water","陈颖华","方康"]},
+        {"date":"2026-03-22","winner":"purple","purplePlayers":["古月","邓波","雷","洪公子","董克诚","吴亚军","water","文明","白云飞","方康"],"greenPlayers":["郑家敏","飘然","王继鹏","陈颖华","张飞","小刘","富升包装","谢宾","黄达飞","墨竹","ANDY-陈"]},
+        {"date":"2026-03-15","winner":"green","purplePlayers":["富升包装","陈颖华","谢清清","小刘","邓波","谢宾","飘然","吴亚军","黄达飞","郑家敏"],"greenPlayers":["风","古月","董克诚","王继鹏","雷","洪公子","water","文明","白云飞"]},
+        {"date":"2026-03-08","winner":"green","purplePlayers":["郑家敏","白云飞","谢宾","风","小刘","洪公子","water","陈颖华","ANDY-陈","方康"],"greenPlayers":["吴亚军","雷","文明","龙A","富升包装","董克诚","谢清清","墨竹","张飞","古月"]},
+        {"date":"2026-03-01","winner":"purple","purplePlayers":["富升包装","文明","ANDY-陈","董克诚","墨竹","杨华斌","water","谢清清","陈颖华","郑家敏"],"greenPlayers":["小刘","黄达飞","雷","方康","吴亚军","洪公子","谢宾","龙A","张飞","邓波"]},
+        {"date":"2026-02-23","winner":"purple","purplePlayers":["吴亚军","古月","ANDY-陈","谢清清","方康","白云飞","洪公子","water"],"greenPlayers":["雷","文明","墨竹","小刘","龙A","谢宾","董克诚","郑家敏"]},
+        {"date":"2026-02-01","winner":"green","purplePlayers":["飘然","墨竹","富升包装","谢宾","谢清清","吴亚军","郑家敏","风","王继鹏","白云飞"],"greenPlayers":["方康","张飞","小刘","石向红","water","陈颖华","雷","洪公子","黄达飞","董克诚"]},
+        {"date":"2026-01-25","winner":"purple","purplePlayers":["谢清清","water","文明","张飞","谢宾","董克诚","墨竹"],"greenPlayers":["石向红","富升包装","郑家敏","雷","风","小刘","吴亚军"]},
+        {"date":"2026-01-18","winner":"green","purplePlayers":["王继鹏","谢清清","墨竹","小刘","杨华斌","ANDY-陈","富升包装","黄达飞","风","吴亚军"],"greenPlayers":["白云飞","雷","董克诚","郑家敏","石向红","文明","谢宾","洪公子","water","古月"]},
+        {"date":"2026-01-11","winner":"green","purplePlayers":["黄达飞","董克诚","邓波","墨竹","吴亚军","古月","郑家敏","文明","谢宾","飘然"],"greenPlayers":["石向红","小刘","王继鹏","water","张飞","洪公子","富升包装","ANDY-陈","谢清清","陈颖华"]},
+        {"date":"2026-01-03","winner":"green","purplePlayers":["邓波","郑家敏","吴亚军","白云飞","飘然","雷","张飞","黄达飞","洪公子","小刘"],"greenPlayers":["古月","ANDY-陈","water","墨竹","王继鹏","谢清清","富升包装","谢宾","风","董克诚"]}
+    ];
+
+    currentGames = [...DEFAULT_GAMES];
+    initPairSelects();
+    initTripletSelects();
+    refreshAll();
+
+    // 监听开关变化
+    const filterToggle = document.getElementById('tripletFilterToggle');
+    filterToggle.addEventListener('change', () => {
+        refreshAll();
+    });
+
+    // 查询按钮绑定
+    document.getElementById('queryBtn').addEventListener('click', () => queryPair(currentGames));
+    document.getElementById('queryTripletBtn').addEventListener('click', () => queryTriplet(currentGames));
+
+    // 文件上传
+    document.getElementById('upload-json').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            try {
+                const json = JSON.parse(ev.target.result);
+                if (Array.isArray(json) && json.length && json[0].hasOwnProperty('winner') && json[0].hasOwnProperty('purplePlayers') && json[0].hasOwnProperty('greenPlayers')) {
+                    currentGames = json;
+                    refreshAll();
+                    document.getElementById('file-name').innerHTML = `📁 已加载: ${file.name} (${currentGames.length}场)`;
+                    document.getElementById('queryResult').style.display = 'none';
+                    document.getElementById('tripletQueryResult').style.display = 'none';
+                } else alert("无效格式：需包含 winner, purplePlayers, greenPlayers");
+            } catch(err) { alert("JSON解析失败："+err.message); }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    });
+</script>
+</body>
+</html>
