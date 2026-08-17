@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏀 新世界养生篮球联赛智能分组系统 🏀</title>
+    <style>
+        :root {
+            --primary-purple: #7b1fa2;
+            --primary-green: #2e7d32;
+            --name-color: #6a1b9a;
+            --position-color: #388e3c;
+            --gradient-purple: linear-gradient(145deg, #9c27b0 0%, #6a1b9a 100%);
+            --gradient-green: linear-gradient(145deg, #4caf50 0%, #2e7d32 100%);
+            --bg-pattern: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm-2-2c-1.1 0-2 .9-2 2s.9 2 2 2h2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-pattern), linear-gradient(135deg, #f8f9fa 0%, #eceff1 100%);
+            -webkit-tap-highlight-color: transparent;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            padding: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: var(--primary-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header h1::before, .header h1::after {
+            content: "⚡";
+            opacity: 0.7;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid rgba(156, 39, 176, 0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 4px 25px rgba(156,39,176,0.15);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
+
+        button::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        button:active::after {
+            opacity: 1;
+        }
+
+        button.primary-btn {
+            background: var(--gradient-purple);
+            color: white;
+            box-shadow: 0 5px 25px rgba(156,39,176,0.3);
+        }
+
+        .teams-container {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: 1fr;
+            margin-top: 25px;
+        }
+
+        .team-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+        }
+
+        .team-card--purple::before {
+            background: var(--gradient-purple);
+        }
+
+        .team-card--green::before {
+            background: var(--gradient-green);
+        }
+
+        .team-card h2 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .player-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .player-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .player-item:active {
+            transform: scale(0.98);
+        }
+
+        .position-tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 10px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: 500;
+            background: rgba(46,125,50,0.15);
+            color: var(--position-color);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+        }
+
+        .power-badge {
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-left: 10px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .power-badge .sep {
+            opacity: 0.3;
+            margin: 0 4px;
+        }
+
+        .move-btn {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin-left: 8px;
+            font-size: 14px;
+            background: rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .move-btn:active {
+            background: rgba(0,0,0,0.12);
+        }
+
+        .result-header {
+            text-align: center;
+            margin: 25px 0;
+            font-size: 20px;
+            color: var(--primary-purple);
+            font-weight: 600;
+            padding: 15px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            position: relative;
+        }
+
+        .result-header::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: var(--primary-purple);
+            opacity: 0.3;
+            border-radius: 2px;
+        }
+
+        @media (min-width: 480px) {
+            .teams-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+            }
+            
+            .container {
+                padding: 30px 25px;
+            }
+        }
+
+        .basketball-icon {
+            width: 28px;
+            height: 28px;
+            background: #ffab00;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .player-name {
+            color: var(--name-color);
+            font-weight: 600;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+        }
+
+        /* 比赛记录模块样式 */
+        .record-section {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        .record-section h3 {
+            text-align: center;
+            color: var(--primary-purple);
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .date-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .date-selector input {
+            padding: 8px 12px;
+            border: 2px solid rgba(156,39,176,0.2);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .winner-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .winner-buttons button {
+            flex: 1;
+            margin: 0;
+        }
+
+        /* 历史记录列表 - 优化显示 */
+        .history-list {
+            margin-top: 25px;
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 12px;
+            padding: 10px;
+            background: white;
+        }
+        .history-item {
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #f9f5ff;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-purple);
+            font-size: 14px;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin-bottom: 8px;
+        }
+        .winner-tag {
+            background: var(--primary-purple);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .winner-tag.green {
+            background: var(--primary-green);
+        }
+        .team-row {
+            margin: 6px 0;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .team-name {
+            font-weight: 600;
+            display: inline-block;
+            min-width: 80px;
+        }
+        .team-name.purple {
+            color: var(--primary-purple);
+        }
+        .team-name.green {
+            color: var(--primary-green);
+        }
+        .player-names {
+            display: inline;
+            color: #333;
+        }
+
+        .stats-section {
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .match-count {
+            background: #e3f2fd;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #1565c0;
+        }
+        .filter-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            background: #f0e6ff;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .stats-table th {
+            background: var(--primary-purple);
+            color: white;
+            padding: 12px 8px;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .stats-table th:hover {
+            background: #9c27b0;
+        }
+        .stats-table th.sort-asc::after {
+            content: " ↑";
+            font-size: 12px;
+        }
+        .stats-table th.sort-desc::after {
+            content: " ↓";
+            font-size: 12px;
+        }
+        .stats-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .stats-table tr:nth-child(even) {
+            background-color: #f9f5ff;
+        }
+        .win-streak {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .lose-streak {
+            color: #c62828;
+            font-weight: bold;
+        }
+        .combo-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+        .combo-table th {
+            background: #2e7d32;
+            color: white;
+            padding: 10px 8px;
+            font-weight: 500;
+        }
+        .combo-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .combo-table tr:nth-child(even) {
+            background-color: #f1f8e9;
+        }
+        .clear-btn {
+            background: #c62828;
+            color: white;
+            margin-top: 20px;
+        }
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+        /* 导入导出按钮组 */
+        .data-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .data-actions button {
+            flex: 1;
+            margin: 0;
+            padding: 12px;
+            font-size: 15px;
+        }
+        .import-btn {
+            background: #2e7d32;
+            color: white;
+        }
+        .export-btn {
+            background: #1565c0;
+            color: white;
+        }
+        .file-input {
+            display: none;
+        }
+        /* 胜值数字样式 */
+        .player-value {
+            font-weight: 700;
+            font-size: 14px;
+            color: #e65100;
+            background: rgba(255,193,7,0.15);
+            padding: 2px 8px;
+            border-radius: 12px;
+            min-width: 36px;
+            text-align: center;
+            display: inline-block;
+            line-height: 1.5;
+        }
+        .player-value.high {
+            background: rgba(46,125,50,0.15);
+            color: #1b5e20;
+        }
+        .player-value.mid {
+            background: rgba(255,152,0,0.15);
+            color: #e65100;
+        }
+        .player-value.low {
+            background: rgba(158,158,158,0.15);
+            color: #616161;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 新世界养生篮球联赛智能分组系统 🏆</h1>
+            <p>智能平衡球队实力，记录胜负数据</p>
+        </div>
+        
+        <textarea id="inputBox" placeholder="请输入球员名单（每行一个姓名）\n示例：\n张三\n李四"></textarea>
+        <button class="primary-btn" onclick="startGrouping()">✨ 开始智能分组</button>
+        
+        <div class="result-header">
+            <span class="basketball-icon">🏀</span>
+            新世界养生篮球联赛分组结果 <span id="currentDate"></span>
+        </div>
+        
+        <div id="output" class="teams-container"></div>
+        <button class="primary-btn" onclick="toggleMoveButtons()">🔄 显示/隐藏调整按钮</button>
+
+        <!-- 比赛记录模块 -->
+        <div class="record-section">
+            <h3>📋 记录比赛结果</h3>
+            <div class="date-selector">
+                <label for="matchDate">比赛日期：</label>
+                <input type="date" id="matchDate">
+            </div>
+            <div class="winner-buttons">
+                <button class="primary-btn" onclick="recordWin('purple')" style="background:var(--gradient-purple);">🐉 紫龙队胜</button>
+                <button class="primary-btn" onclick="recordWin('green')" style="background:var(--gradient-green);">🐸 绿泡泡队胜</button>
+            </div>
+
+            <!-- 历史比赛记录列表 -->
+            <h3 style="margin-top:20px;">📜 历史比赛记录</h3>
+            <div id="historyList" class="history-list">
+                <div class="no-data">暂无历史比赛</div>
+            </div>
+
+            <div class="stats-section">
+                <h3>📊 New_BA大联盟球星风向标</h3>
+                <!-- 过滤栏：左侧显示比赛场数，右侧为过滤开关 -->
+                <div class="filter-bar">
+                    <div class="match-count" id="matchCountDisplay">当前比赛场数：0</div>
+                    <label class="filter-label">
+                        <input type="checkbox" id="filterLowGamesCheckbox" onchange="updateStatsTable(); updateComboRankings();">
+                        🧹 过滤低参赛选手
+                    </label>
+                </div>
+                <table class="stats-table" id="statsTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="rank">排名</th>
+                            <th data-sort="player">球员</th>
+                            <th data-sort="wins">胜场</th>
+                            <th data-sort="losses">负场</th>
+                            <th data-sort="winRate">胜率</th>
+                            <th data-sort="value">胜值</th>
+                            <th data-sort="streak">当前状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsBody">
+                        <!-- 动态生成 -->
+                    </tbody>
+                </table>
+
+                <!-- 最强二人组 -->
+                <h3 style="margin-top:20px;">🔥 最强二人组 (同时出场胜率)</h3>
+                <table class="combo-table" id="duoTable">
+                    <thead>
+                        <tr><th>排名</th><th>组合</th><th>胜场</th><th>总场次</th><th>胜率</th></tr>
+                    </thead>
+                    <tbody id="duoBody">
+                        <tr><td colspan="5" class="no-data">暂无数据</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- 最强三人组 -->
+                <h3>🔥 最强三人组 (同时出场胜率)</h3>
+                <table class="combo-table" id="trioTable">
+                    <thead>
+                        <tr><th>排名</th><th>组合</th><th>胜场</th><th>总场次</th><th>胜率</th></tr>
+                    </thead>
+                    <tbody id="trioBody">
+                        <tr><td colspan="5" class="no-data">暂无数据</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 导入导出按钮组 -->
+            <div class="data-actions">
+             <!--   <button class="export-btn" onclick="exportData()">💾 导出数据</button>  -->
+                <button class="import-btn" onclick="document.getElementById('importFile').click()">📂 导入数据</button>
+                <button class="clear-btn" onclick="clearMatchRecords()">🗑️ 清除所有</button>
+            </div>
+            <input type="file" id="importFile" class="file-input" accept=".json,application/json" onchange="importData(event)">
+        </div>
+    </div>
+
+    <script>
+        // ---------- 原有球员数据及分组逻辑（完整保留）----------
+        const playerData = [
+            { name: "ANDY-陈", level: "1A", position: 5, real_name: "陈敬颂" },
+            { name: "A田春雨", level: "3B", position: 2 , real_name: "田春雨"},
+            { name: "water", level: "3B", position: 2, real_name: "钟水庭" },
+            { name: "白云飞", level: "1C", position: 4 , real_name: "资云"},
+            { name: "陈颖华", level: "2A", position: 3 , real_name: "陈颖华"},
+            { name: "邓波", level: "3C", position: 4, real_name: "邓蔬波" },
+            { name: "董克诚", level: "2A", position: 2 , real_name: "董克诚"},
+            { name: "风", level: "2A", position: 3, real_name: "彭凌风" },
+            { name: "富升包装", level: "1B", position: 1 , real_name: "马巧利"},
+            { name: "古月", level: "1B", position: 5, real_name: "胡国栋" },
+            { name: "方国初", level: "3C", position: 2, real_name: "方国初" },
+            { name: "洪公子", level: "2A", position: 1, real_name: "王洪" },
+            { name: "黄胜发", level: "1C", position: 2 , real_name: "黄胜发"},
+            { name: "雷", level: "1A", position: 2 , real_name: "雷祖华"},
+            { name: "龙A", level: "2A", position: 4, real_name: "龙建新" },
+            { name: "陆锦江", level: "3B", position: 4 , real_name: "陆锦江"},
+            { name: "飘然", level: "3B", position: 1 , real_name: "方冠英"},
+            { name: "王继鹏", level: "2A", position: 4, real_name: "王继鹏" },
+            { name: "文明", level: "1A", position: 3, real_name: "文明" },
+            { name: "娃哈哈", level: "2B", position: 3, real_name: "吴美元" },
+            { name: "吴亚军", level: "3A", position: 2 , real_name: "吴亚军"},
+            { name: "小刘", level: "2B", position: 1, real_name: "刘秦军" },
+            { name: "谢宾", level: "2A", position: 2, real_name: "谢宾" },
+            { name: "杨华斌", level: "1C", position: 1 , real_name: "杨华斌"},
+            { name: "张飞", level: "1B", position: 5 , real_name: "张飞"},
+            { name: "郑家敏", level: "1B", position: 5 , real_name: "郑家敏"},
+            { name: "耀天", level: "1B", position: 3 , real_name: "张耀天"},
+            { name: "林晓欣", level: "1B", position: 3 , real_name: "林晓欣"},
+            { name: "谢清清", level: "1A", position: 3 , real_name: "谢清清"},
+            { name: "黄达飞", level: "2A", position: 3 , real_name: "黄达飞"},
+            { name: "渣渣辉", level: "1B", position: 1 , real_name: "渣渣辉"},
+            { name: "陈彬", level: "2A", position: 3 , real_name: "陈彬"},
+            { name: "方康", level: "1A", position: 5 , real_name: "方康"},
+            { name: "墨竹", level: "3B", position: 3 , real_name: "武建华"},
+            { name: "石向红", level: "3B", position: 3 , real_name: "石向红"},
+            { name: "周小胖", level: "1B", position: 5 , real_name: "周家瑞"},
+            { name: "余再延", level: "2A", position: 3 , real_name: "余再延"}
+        ];
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+
+        let showMoveButtons = true;
+        function toggleMoveButtons() {
+            showMoveButtons = !showMoveButtons;
+            updateLevelAndButtonVisibility();
+        }
+
+        const levelOrder = ['1A','1B','1C','2A','2B','2C','3A','3B','3C'];
+        const positionMap = {1:'控卫',2:'分卫',3:'小前',4:'大前',5:'中锋'};
+        const levelScores = {
+            '1A': 10000,
+            '1B': 9500, 
+            '1C': 9000, 
+            '2A': 8500,
+            '2B': 7000,
+            '2C': 6000, 
+            '3A': 5000,
+            '3B': 4000,
+            '3C':3000
+        };
+
+        let currentTeams = { teamA: [], teamB: [] };
+
+        function getCssVar(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function parseInput(text) {
+            const parsed = text.split('\n')
+                .map(line => {
+                    const match = line.match(/(?:^|\s)([A-Za-z\u4e00-\u9fa5-]{1,})(?:[\s\d：:（(]|$)/);
+                    return match ? match[1].trim() : '';
+                })
+                .filter(name => name.length >= 1)
+                .map(name => {
+                    const cleanName = name.replace(/[^\w\u4e00-\u9fa5-]/g, '');
+                    const exactMatch = playerData.find(p => p.name === cleanName);
+                    if (exactMatch) return exactMatch;
+                    
+                    const fuzzyMatch = playerData.find(p => {
+                        const pName = p.name.replace(/\s/g, '').toLowerCase();
+                        const inputName = cleanName.replace(/\s/g, '').toLowerCase();
+                        return pName === inputName || pName.startsWith(inputName);
+                    });
+                    return fuzzyMatch || null;
+                })
+                .filter(p => p)
+                .reduce((acc, cur) => {
+                    if (!acc.some(p => p.name === cur.name)) acc.push(cur);
+                    return acc;
+                }, []);
+
+            if(parsed.length === 0) throw new Error('未识别到有效球员');
+            return parsed;
+        }
+
+        function balanceByLevel(players) {
+            const levelGroups = levelOrder.reduce((acc, level) => {
+                acc[level] = shuffleArray(players.filter(p => p.level === level));
+                return acc;
+            }, {});
+
+            let teamA = [], teamB = [];
+            let globalDebt = 0;
+            
+            levelOrder.forEach(level => {
+                const group = levelGroups[level];
+                if (group.length === 0) return;
+
+                const total = group.length;
+                let baseA = Math.floor(total / 2);
+                let baseB = Math.floor(total / 2);
+                
+                if (total % 2 !== 0) {
+                    if (globalDebt === 0) {
+                        Math.random() < 0.5 ? baseA++ : baseB++;
+                    } else if (globalDebt > 0) {
+                        baseB++;
+                        globalDebt--;
+                    } else {
+                        baseA++;
+                        globalDebt++;
+                    }
+                }
+                
+                const currentDiff = (teamA.length + baseA) - (teamB.length + baseB);
+                if (Math.abs(currentDiff) > 1) {
+                    const adjust = Math.floor(Math.abs(currentDiff)/2);
+                    currentDiff > 0 ? (baseA -= adjust, baseB += adjust) : (baseA += adjust, baseB -= adjust);
+                }
+                
+                teamA.push(...group.splice(0, baseA));
+                teamB.push(...group.splice(0, baseB));
+                globalDebt += (baseA - baseB);
+            });
+
+            return finalBalance(teamA, teamB);
+        }
+
+        function finalBalance(teamA, teamB) {
+            const balance = (team, otherTeam) => {
+                const diff = team.length - otherTeam.length;
+                if (Math.abs(diff) <= 1) return;
+
+                const adjustment = Math.floor(Math.abs(diff)/2);
+                const candidates = team.filter(p => p.level === '3B');
+                
+                if (candidates.length >= adjustment) {
+                    const movePlayers = candidates.slice(-adjustment);
+                    movePlayers.forEach(p => {
+                        team.splice(team.indexOf(p), 1);
+                        otherTeam.push(p);
+                    });
+                }
+            };
+
+            balance(teamA, teamB);
+            balance(teamB, teamA);
+            
+            return {
+                teamA: shuffleArray(teamA),
+                teamB: shuffleArray(teamB)
+            };
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startGrouping() {
+            try {
+                const input = document.getElementById('inputBox').value;
+                const players = parseInput(input);
+                const { teamA, teamB } = balanceByLevel(players);
+                currentTeams = { teamA, teamB };
+                renderTeams(teamA, teamB);
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function sortPlayers(players) {
+            return [...players].sort((a, b) => 
+                levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level)
+            );
+        }
+
+        // ---------- 胜值计算（指数折扣模型，k=0.2）----------
+        function calcPlayerValue(playerName) {
+            let wins = 0, losses = 0;
+            for (const record of matchRecords) {
+                const inPurple = record.purplePlayers.includes(playerName);
+                const inGreen = record.greenPlayers.includes(playerName);
+                if (inPurple || inGreen) {
+                    if ((inPurple && record.winner === 'purple') || (inGreen && record.winner === 'green')) {
+                        wins++;
+                    } else {
+                        losses++;
+                    }
+                }
+            }
+            const total = wins + losses;
+            if (total === 0) return 0;
+            const winRate = wins / total;
+            const k = 0.2;
+            const discount = 1 - Math.exp(-k * total);
+            return winRate * 100 * discount;
+        }
+
+        // 获取所有球员胜值（用于快速查询）
+        function getAllPlayerValues() {
+            const map = {};
+            for (const p of playerData) {
+                map[p.name] = calcPlayerValue(p.name);
+            }
+            return map;
+        }
+
+        function renderTeams(teamA, teamB) {
+            const calculatePower = team => team.reduce((sum, p) => sum + levelScores[p.level], 0);
+            const powerA = calculatePower(teamA);
+            const powerB = calculatePower(teamB);
+            
+            const purple = getCssVar('--primary-purple');
+            const green = getCssVar('--primary-green');
+
+            // 计算所有球员胜值
+            const valMap = getAllPlayerValues();
+
+            // 队伍总胜值
+            const totalValA = teamA.reduce((s, p) => s + (valMap[p.name] || 0), 0);
+            const totalValB = teamB.reduce((s, p) => s + (valMap[p.name] || 0), 0);
+
+            const output = document.getElementById('output');
+            output.innerHTML = `
+                <div class="team-card team-card--purple">
+                    <h2 style="display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; margin: 0 0 10px 0; padding: 4px 0;">
+    <span class="basketball-icon" style="flex-shrink: 0; width: 22px; height: 22px; font-size: 13px;">🐉</span>
+    <span style="font-weight: 600; font-size: 15px; color: var(--primary-purple); flex-shrink: 0;">紫龙队</span>
+    <span style="background: rgba(156,39,176,0.1); color: ${purple}; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 12px; display: inline-block; white-space: nowrap; flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+        战力：${powerA} <span class="sep" style="margin: 0 4px;">|</span> 总胜利值：${totalValA.toFixed(1)}
+    </span>
+</h2>
+                    <ul class="player-list">
+                        ${sortPlayersByPosition(teamA).map(p => {
+                            const v = valMap[p.name] || 0;
+                            let cls = 'player-value';
+                            if (v >= 60) cls += ' high';
+                            else if (v >= 40) cls += ' mid';
+                            else cls += ' low';
+                            return `
+                            <li class="player-item" data-player="${p.name}">
+                                <div>
+                                    <span class="player-name">${p.real_name || p.name}</span>
+                                    <span class="position-tag">${positionMap[p.position]}</span>
+                                </div>
+                                <div>
+                                    <span class="level-display" style="color:${purple}">${p.level}</span>
+                                    <span class="${cls}">${v.toFixed(1)}</span>
+                                    <span class="move-btn">⇄</span>
+                                </div>
+                            </li>
+                        `}).join('')}
+                    </ul>
+                </div>
+                <div class="team-card team-card--green">
+                    <h2 style="display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; margin: 0 0 10px 0; padding: 4px 0;">
+    <span class="basketball-icon" style="flex-shrink: 0; width: 22px; height: 22px; font-size: 13px;">🐸</span>
+    <span style="font-weight: 600; font-size: 15px; color: var(--primary-green); flex-shrink: 0;">绿泡泡队</span>
+    <span style="background: rgba(76,175,80,0.1); color: ${green}; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 12px; display: inline-block; white-space: nowrap; flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+        战力：${powerB} <span class="sep" style="margin: 0 4px;">|</span> 总胜利值：${totalValB.toFixed(1)}
+    </span>
+</h2>
+                    <ul class="player-list">
+                        ${sortPlayersByPosition(teamB).map(p => {
+                            const v = valMap[p.name] || 0;
+                            let cls = 'player-value';
+                            if (v >= 60) cls += ' high';
+                            else if (v >= 40) cls += ' mid';
+                            else cls += ' low';
+                            return `
+                            <li class="player-item" data-player="${p.name}">
+                                <div>
+                                    <span class="player-name">${p.real_name || p.name}</span>
+                                    <span class="position-tag">${positionMap[p.position]}</span>
+                                </div>
+                                <div>
+                                    <span class="level-display" style="color:${green}">${p.level}</span>
+                                    <span class="${cls}">${v.toFixed(1)}</span>
+                                    <span class="move-btn">⇄</span>
+                                </div>
+                            </li>
+                        `}).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            updateLevelAndButtonVisibility();
+        }
+
+        function sortPlayersByPosition(players) {
+            return [...players].sort((a, b) => a.position - b.position);
+        }
+
+        function updateLevelAndButtonVisibility() {
+            document.querySelectorAll('.move-btn').forEach(btn => {
+                btn.style.display = showMoveButtons ? 'inline-block' : 'none';
+            });
+            
+            document.querySelectorAll('.level-display').forEach(level => {
+                level.style.display = showMoveButtons ? 'inline-block' : 'none';
+            });
+        }
+
+        function movePlayer(playerName) {
+            let sourceTeam = currentTeams.teamA.find(p => p.name === playerName) ? 'teamA' : 'teamB';
+            let targetTeam = sourceTeam === 'teamA' ? 'teamB' : 'teamA';
+            
+            const playerIndex = currentTeams[sourceTeam].findIndex(p => p.name === playerName);
+            const [movedPlayer] = currentTeams[sourceTeam].splice(playerIndex, 1);
+            currentTeams[targetTeam].push(movedPlayer);
+            
+            renderTeams(
+                sortPlayers(currentTeams.teamA),
+                sortPlayers(currentTeams.teamB)
+            );
+        }
+
+        document.getElementById('output').addEventListener('click', function(e) {
+            if (e.target.classList.contains('move-btn')) {
+                const playerItem = e.target.closest('.player-item');
+                const playerName = playerItem.dataset.player;
+                movePlayer(playerName);
+            }
+        });
+
+        // ---------- 比赛记录功能（含历史列表和排序）----------
+        let matchRecords = [];  // 存储所有比赛记录
+
+        // 排序状态
+        let currentSort = { column: 'winRate', order: 'desc' }; // 默认按胜率降序
+
+        // 加载
+        function loadMatchRecords() {
+            const saved = localStorage.getItem('basketballMatchRecordsSimple');
+            if (saved) {
+                matchRecords = JSON.parse(saved);
+            }
+            renderHistoryList();
+            updateMatchCountDisplay();   // 更新比赛场数显示
+            updateStatsTable();
+            updateComboRankings();       // 更新组合排名
+        }
+
+        function saveMatchRecords() {
+            localStorage.setItem('basketballMatchRecordsSimple', JSON.stringify(matchRecords));
+        }
+
+        // 更新比赛场数显示
+        function updateMatchCountDisplay() {
+            const countSpan = document.getElementById('matchCountDisplay');
+            if (countSpan) {
+                countSpan.textContent = `当前比赛场数：${matchRecords.length}`;
+            }
+        }
+
+        // 设置日期默认值
+        function setDefaultDate() {
+            const today = new Date().toISOString().slice(0,10);
+            document.getElementById('matchDate').value = today;
+        }
+
+        // 记录比赛
+        function recordWin(winner) {
+            if (currentTeams.teamA.length === 0 || currentTeams.teamB.length === 0) {
+                alert('请先进行分组！');
+                return;
+            }
+
+            const date = document.getElementById('matchDate').value;
+            if (!date) {
+                alert('请选择比赛日期');
+                return;
+            }
+
+            const purplePlayers = currentTeams.teamA.map(p => p.name);
+            const greenPlayers = currentTeams.teamB.map(p => p.name);
+
+            const record = {
+                date: date,
+                winner: winner,
+                purplePlayers: purplePlayers,
+                greenPlayers: greenPlayers
+            };
+
+            matchRecords.push(record);
+            // 按日期逆序存储（最新的在前，便于显示）
+            matchRecords.sort((a,b) => b.date.localeCompare(a.date));
+
+            saveMatchRecords();
+            renderHistoryList();
+            updateMatchCountDisplay();   // 更新比赛场数显示
+            updateStatsTable();
+            updateComboRankings();       // 更新组合排名
+            alert(`比赛已记录：${winner === 'purple' ? '紫龙队' : '绿泡泡队'}获胜`);
+        }
+
+        // 清除所有记录
+        function clearMatchRecords() {
+            if (confirm('确定清除所有比赛记录吗？')) {
+                matchRecords = [];
+                saveMatchRecords();
+                renderHistoryList();
+                updateMatchCountDisplay();   // 更新比赛场数显示
+                updateStatsTable();
+                updateComboRankings();       // 更新组合排名
+            }
+        }
+
+        // 辅助函数：根据球员name数组返回显示名称字符串（真实姓名）
+        function formatPlayerNames(nameArray) {
+            return nameArray.map(name => {
+                const p = playerData.find(p => p.name === name);
+                return p ? (p.real_name || name) : name;
+            }).join('、');
+        }
+
+        // 渲染历史记录列表（逆序显示，最新在上）
+        function renderHistoryList() {
+            const container = document.getElementById('historyList');
+            if (matchRecords.length === 0) {
+                container.innerHTML = '<div class="no-data">暂无历史比赛</div>';
+                return;
+            }
+
+            let html = '';
+            matchRecords.forEach(record => {
+                const winnerTeam = record.winner === 'purple' ? '紫龙队' : '绿泡泡队';
+                const winnerClass = record.winner === 'purple' ? '' : 'green';
+                const purpleNames = formatPlayerNames(record.purplePlayers);
+                const greenNames = formatPlayerNames(record.greenPlayers);
+
+                html += `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <span>📅 ${record.date}</span>
+                            <span class="winner-tag ${winnerClass}">🏆 ${winnerTeam}</span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name purple">🐉 紫龙队：</span>
+                            <span class="player-names">${purpleNames}</span>
+                        </div>
+                        <div class="team-row">
+                            <span class="team-name green">🐸 绿泡泡队：</span>
+                            <span class="player-names">${greenNames}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // 获取符合条件的球员集合（参赛总场次 ≥ 总场次*50%）
+        function getQualifiedPlayers() {
+            const totalMatches = matchRecords.length;
+            if (totalMatches === 0) return new Set();
+            const threshold = totalMatches * 0.5;
+            // 统计每个球员的总参赛场次
+            const playerGames = {};
+            matchRecords.forEach(record => {
+                record.purplePlayers.forEach(name => { playerGames[name] = (playerGames[name] || 0) + 1; });
+                record.greenPlayers.forEach(name => { playerGames[name] = (playerGames[name] || 0) + 1; });
+            });
+            const qualified = new Set();
+            for (const [name, games] of Object.entries(playerGames)) {
+                if (games >= threshold) qualified.add(name);
+            }
+            return qualified;
+        }
+
+        // 更新最强二人组和三人组排名（增加共同出场次数过滤）
+function updateComboRankings() {
+    const totalMatches = matchRecords.length;
+    if (totalMatches === 0) {
+        document.getElementById('duoBody').innerHTML = '<tr><td colspan="5" class="no-data">暂无数据</td></tr>';
+        document.getElementById('trioBody').innerHTML = '<tr><td colspan="5" class="no-data">暂无数据</td></tr>';
+        return;
+    }
+
+    const qualifiedPlayers = getQualifiedPlayers(); // 个人出场 ≥ 总场次50%
+    if (qualifiedPlayers.size < 2) {
+        document.getElementById('duoBody').innerHTML = '<tr><td colspan="5" class="no-data">符合条件的球员不足2人</td></tr>';
+        document.getElementById('trioBody').innerHTML = '<tr><td colspan="5" class="no-data">符合条件的球员不足3人</td></tr>';
+        return;
+    }
+
+    // 统计二人组和三人组
+    const duoStats = new Map();
+    const trioStats = new Map();
+
+    matchRecords.forEach(record => {
+        const processTeam = (players, teamWinner) => {
+            const qualifiedInTeam = players.filter(p => qualifiedPlayers.has(p));
+            if (qualifiedInTeam.length < 2) return;
+            // 二人组
+            for (let i = 0; i < qualifiedInTeam.length; i++) {
+                for (let j = i+1; j < qualifiedInTeam.length; j++) {
+                    const p1 = qualifiedInTeam[i];
+                    const p2 = qualifiedInTeam[j];
+                    const key = [p1, p2].sort().join('|');
+                    if (!duoStats.has(key)) {
+                        duoStats.set(key, { wins: 0, total: 0, players: [p1, p2] });
+                    }
+                    const stat = duoStats.get(key);
+                    stat.total++;
+                    if (teamWinner) stat.wins++;
+                }
+            }
+            // 三人组
+            if (qualifiedInTeam.length < 3) return;
+            for (let i = 0; i < qualifiedInTeam.length; i++) {
+                for (let j = i+1; j < qualifiedInTeam.length; j++) {
+                    for (let k = j+1; k < qualifiedInTeam.length; k++) {
+                        const p1 = qualifiedInTeam[i];
+                        const p2 = qualifiedInTeam[j];
+                        const p3 = qualifiedInTeam[k];
+                        const key = [p1, p2, p3].sort().join('|');
+                        if (!trioStats.has(key)) {
+                            trioStats.set(key, { wins: 0, total: 0, players: [p1, p2, p3] });
+                        }
+                        const stat = trioStats.get(key);
+                        stat.total++;
+                        if (teamWinner) stat.wins++;
+                    }
+                }
+            }
+        };
+        processTeam(record.purplePlayers, record.winner === 'purple');
+        processTeam(record.greenPlayers, record.winner === 'green');
+    });
+
+    // 计算胜率，并过滤共同出场次数不足总场次50%的组合
+    const threshold = totalMatches * 0.5;
+    const duoList = Array.from(duoStats.values())
+        .filter(stat => stat.total >= threshold)   // 关键过滤条件
+        .map(stat => ({
+            ...stat,
+            winRate: stat.total === 0 ? 0 : stat.wins / stat.total
+        }))
+        .sort((a,b) => {
+            if (a.winRate !== b.winRate) return b.winRate - a.winRate;
+            return b.total - a.total;
+        });
+
+    const trioList = Array.from(trioStats.values())
+        .filter(stat => stat.total >= threshold)   // 关键过滤条件
+        .map(stat => ({
+            ...stat,
+            winRate: stat.total === 0 ? 0 : stat.wins / stat.total
+        }))
+        .sort((a,b) => {
+            if (a.winRate !== b.winRate) return b.winRate - a.winRate;
+            return b.total - a.total;
+        });
+
+    // 渲染二人组
+    const duoBody = document.getElementById('duoBody');
+    if (duoList.length === 0) {
+        duoBody.innerHTML = '<tr><td colspan="5" class="no-data">暂无二人组数据（共同出场不足总场次50%）</td></tr>';
+    } else {
+        duoBody.innerHTML = '';
+        const topDuos = duoList.slice(0, 5);
+        topDuos.forEach((duo, idx) => {
+            const names = duo.players.map(name => {
+                const p = playerData.find(p => p.name === name);
+                return p ? (p.real_name || name) : name;
+            }).join(' & ');
+            const winRatePercent = (duo.winRate * 100).toFixed(1) + '%';
+            const row = `<tr>
+                <td>${idx+1}</td>
+                <td>${names}</td>
+                <td>${duo.wins}</td>
+                <td>${duo.total}</td>
+                <td>${winRatePercent}</td>
+            </tr>`;
+            duoBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    // 渲染三人组
+    const trioBody = document.getElementById('trioBody');
+    if (trioList.length === 0) {
+        trioBody.innerHTML = '<tr><td colspan="5" class="no-data">暂无三人组数据（共同出场不足总场次50%）</td></tr>';
+    } else {
+        trioBody.innerHTML = '';
+        const topTrios = trioList.slice(0, 5);
+        topTrios.forEach((trio, idx) => {
+            const names = trio.players.map(name => {
+                const p = playerData.find(p => p.name === name);
+                return p ? (p.real_name || name) : name;
+            }).join(' & ');
+            const winRatePercent = (trio.winRate * 100).toFixed(1) + '%';
+            const row = `<tr>
+                <td>${idx+1}</td>
+                <td>${names}</td>
+                <td>${trio.wins}</td>
+                <td>${trio.total}</td>
+                <td>${winRatePercent}</td>
+            </tr>`;
+            trioBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+}
+
+        // 更新统计表格（支持动态排序 + 过滤低参赛选手）
+        function updateStatsTable() {
+            const tbody = document.getElementById('statsBody');
+            tbody.innerHTML = '';
+
+            const stats = {};
+            playerData.forEach(p => {
+                stats[p.name] = {
+                    wins: 0,
+                    losses: 0,
+                    matches: []  // 用于连胜连败
+                };
+            });
+
+            // 按日期正序计算统计数据
+            const sortedAsc = [...matchRecords].sort((a,b) => a.date.localeCompare(b.date));
+            sortedAsc.forEach(record => {
+                const winner = record.winner;
+                record.purplePlayers.forEach(name => {
+                    if (stats[name]) {
+                        if (winner === 'purple') stats[name].wins++;
+                        else stats[name].losses++;
+                        stats[name].matches.push({ date: record.date, win: winner === 'purple' });
+                    }
+                });
+                record.greenPlayers.forEach(name => {
+                    if (stats[name]) {
+                        if (winner === 'green') stats[name].wins++;
+                        else stats[name].losses++;
+                        stats[name].matches.push({ date: record.date, win: winner === 'green' });
+                    }
+                });
+            });
+
+            // 筛选有记录的球员
+            let playersWithStats = playerData.filter(p => {
+                const s = stats[p.name];
+                return s && (s.wins > 0 || s.losses > 0);
+            });
+
+            // ========== 过滤：总场数低于总比赛场次50%的球员 ==========
+            const filterCheckbox = document.getElementById('filterLowGamesCheckbox');
+            if (filterCheckbox && filterCheckbox.checked && playersWithStats.length > 0) {
+                const totalMatches = matchRecords.length;  // 总比赛场次数
+                if (totalMatches > 0) {
+                    const threshold = totalMatches * 0.5;  // 阈值：总比赛场次的一半
+                    playersWithStats = playersWithStats.filter(p => {
+                        const total = stats[p.name].wins + stats[p.name].losses;
+                        return total >= threshold;
+                    });
+                }
+            }
+            // ========== 过滤结束 ==========
+
+            // 为每个球员准备排序所需的值
+            const playersData = playersWithStats.map(p => {
+                const s = stats[p.name];
+                const total = s.wins + s.losses;
+                const winRate = total === 0 ? 0 : s.wins / total;
+                
+                // 计算连胜连败数值
+                let streakValue = 0;
+                if (s.matches.length > 0) {
+                    const lastMatch = s.matches[s.matches.length - 1];
+                    const lastWin = lastMatch.win;
+                    let streak = 1;
+                    for (let i = s.matches.length - 2; i >= 0; i--) {
+                        if (s.matches[i].win === lastWin) streak++;
+                        else break;
+                    }
+                    streakValue = lastWin ? streak : -streak;
+                }
+                
+                // 计算胜值（指数折扣模型）
+                const value = calcPlayerValue(p.name);
+
+                return {
+                    player: p,
+                    wins: s.wins,
+                    losses: s.losses,
+                    winRate: winRate,
+                    streakValue: streakValue,
+                    streakText: streakValue > 0 ? `${streakValue}连胜` : (streakValue < 0 ? `${-streakValue}连败` : '—'),
+                    value: value
+                };
+            });
+
+            // 根据当前排序规则排序
+            playersData.sort((a, b) => {
+                let valA, valB;
+                switch (currentSort.column) {
+                    case 'rank':
+                        return 0;  // 排名列不参与排序，保持顺序
+                    case 'player':
+                        valA = a.player.real_name || a.player.name;
+                        valB = b.player.real_name || b.player.name;
+                        break;
+                    case 'wins':
+                        valA = a.wins;
+                        valB = b.wins;
+                        break;
+                    case 'losses':
+                        valA = a.losses;
+                        valB = b.losses;
+                        break;
+                    case 'winRate':
+                        valA = a.winRate;
+                        valB = b.winRate;
+                        break;
+                    case 'value':
+                        valA = a.value;
+                        valB = b.value;
+                        break;
+                    case 'streak':
+                        valA = a.streakValue;
+                        valB = b.streakValue;
+                        break;
+                    default:
+                        valA = a.winRate;
+                        valB = b.winRate;
+                }
+                if (valA === valB) return 0;
+                if (currentSort.order === 'desc') {
+                    return valA > valB ? -1 : 1;
+                } else {
+                    return valA < valB ? -1 : 1;
+                }
+            });
+
+            // 渲染表格（带排名列和胜值列）
+            playersData.forEach((data, idx) => {
+                const rank = idx + 1;
+                const winRatePercent = (data.winRate * 100).toFixed(1) + '%';
+                const streakHtml = data.streakValue > 0 ? `<span class="win-streak">${data.streakText}</span>` :
+                                   (data.streakValue < 0 ? `<span class="lose-streak">${data.streakText}</span>` : data.streakText);
+                const valueHtml = data.value.toFixed(1);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${rank}</td>
+                    <td>${data.player.real_name || data.player.name}</td>
+                    <td>${data.wins}</td>
+                    <td>${data.losses}</td>
+                    <td>${winRatePercent}</td>
+                    <td>${valueHtml}</td>
+                    <td>${streakHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (playersWithStats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#999;">暂无比赛记录</td></tr>';
+            }
+
+            // 更新表头排序指示器
+            const ths = document.querySelectorAll('#statsTable th');
+            ths.forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                const sortKey = th.getAttribute('data-sort');
+                if (sortKey === currentSort.column) {
+                    th.classList.add(currentSort.order === 'desc' ? 'sort-desc' : 'sort-asc');
+                }
+            });
+        }
+
+        // 排序处理函数
+        function handleSort(column) {
+            if (currentSort.column === column) {
+                // 切换排序方向
+                currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
+            } else {
+                // 新列，默认降序
+                currentSort.column = column;
+                currentSort.order = 'desc';
+            }
+            updateStatsTable();
+        }
+
+        // 绑定表头点击事件
+        function bindSortEvents() {
+            const ths = document.querySelectorAll('#statsTable th');
+            ths.forEach(th => {
+                th.addEventListener('click', () => {
+                    const sortKey = th.getAttribute('data-sort');
+                    if (sortKey) handleSort(sortKey);
+                });
+            });
+        }
+
+        // ---------- 导入导出功能 ----------
+        function exportData() {
+            if (matchRecords.length === 0) {
+                alert('没有数据可导出');
+                return;
+            }
+            const dataStr = JSON.stringify(matchRecords, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `basketball_records_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) {
+                        throw new Error('数据格式错误：应为数组');
+                    }
+                    const isValid = imported.every(rec => 
+                        rec.date && rec.winner && Array.isArray(rec.purplePlayers) && Array.isArray(rec.greenPlayers)
+                    );
+                    if (!isValid) {
+                        throw new Error('数据格式错误：缺少必要字段');
+                    }
+                    matchRecords = imported;
+                    matchRecords.sort((a,b) => b.date.localeCompare(a.date));
+                    saveMatchRecords();
+                    renderHistoryList();
+                    updateMatchCountDisplay();   // 更新比赛场数显示
+                    updateStatsTable();
+                    updateComboRankings();       // 更新组合排名
+                    alert(`成功导入 ${matchRecords.length} 条比赛记录`);
+                } catch (err) {
+                    alert('导入失败：' + err.message);
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 初始化
+        window.onload = function() {
+            setDefaultDate();
+            loadMatchRecords();
+            bindSortEvents();  // 绑定排序事件
+        };
+    </script>
+</body>
+</html>
