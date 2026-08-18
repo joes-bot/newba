@@ -1408,7 +1408,7 @@
 
         // 二人组查询
         function queryPair(games) {
-            if (!checkPassword()) return;
+           
             const nickA = selectA.value;
             const nickB = selectB.value;
             const resultDiv = document.getElementById('queryResult');
@@ -1489,7 +1489,7 @@
         selectTriC.addEventListener('change', refreshTripletSelects);
 
         function queryTriplet(games) {
-            if (!checkPassword()) return;
+            
             const nickA = selectTriA.value;
             const nickB = selectTriB.value;
             const nickC = selectTriC.value;
