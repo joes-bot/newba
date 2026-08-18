@@ -101,62 +101,21 @@
             color: #c62828;
             background: #ffebee;
         }
-        .file-area {
-            background: #f9fdfe;
-            border-radius: 28px;
-            padding: 16px 24px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 20px;
-            justify-content: space-between;
-            border: 1px solid #e2edf2;
-        }
-        .upload-group {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .file-label {
-            background: #1e5c8b;
-            color: white;
-            padding: 8px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .file-label:hover {
-            background: #104b72;
-            transform: translateY(-1px);
-        }
-        #file-name {
+        .auth-status {
             font-size: 0.85rem;
-            color: #1f5e7e;
-            background: white;
-            padding: 5px 18px;
-            border-radius: 40px;
-            border: 1px solid #cfe0ea;
-        }
-        .stats-badge {
-            display: flex;
-            gap: 28px;
+            font-weight: 600;
+            padding: 4px 16px;
+            border-radius: 20px;
             background: #eef3fc;
-            padding: 8px 24px;
-            border-radius: 60px;
-            flex-wrap: wrap;
+            margin-left: 8px;
         }
-        .stat-item {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-            font-size: 0.9rem;
+        .auth-status.ok {
+            color: #2e7d32;
+            background: #e8f5e9;
         }
-        .stat-number {
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: #1f7a5c;
+        .auth-status.err {
+            color: #c62828;
+            background: #ffebee;
         }
         .info-note {
             font-size: 0.75rem;
@@ -501,6 +460,68 @@
             width: 48px;
         }
 
+        /* 底部上传区域 */
+        .upload-section {
+            padding: 20px 28px;
+        }
+        .file-area {
+            background: #f9fdfe;
+            border-radius: 28px;
+            padding: 16px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px;
+            justify-content: space-between;
+            border: 1px solid #e2edf2;
+        }
+        .upload-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .file-label {
+            background: #1e5c8b;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .file-label:hover {
+            background: #104b72;
+            transform: translateY(-1px);
+        }
+        #file-name {
+            font-size: 0.85rem;
+            color: #1f5e7e;
+            background: white;
+            padding: 5px 18px;
+            border-radius: 40px;
+            border: 1px solid #cfe0ea;
+        }
+        .stats-badge {
+            display: flex;
+            gap: 28px;
+            background: #eef3fc;
+            padding: 8px 24px;
+            border-radius: 60px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .stat-number {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #1f7a5c;
+        }
+
         /* 移动端自适应 */
         @media (max-width: 640px) {
             .stats-table {
@@ -603,6 +624,9 @@
             .token-area input {
                 min-width: unset;
             }
+            .upload-section {
+                padding: 12px 16px;
+            }
         }
         @media (max-width: 420px) {
             .stats-table {
@@ -629,7 +653,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- ===== 顶部：标题 + Token 输入 ===== -->
+        <!-- ===== 顶部：标题 + Token ===== -->
         <div class="header-card">
             <h1>🏀 化学反应实验室 · 双人/三人统治力</h1>
             <div class="sub">共同出战 ≥ 总场次50% 胜率排名 + 零胜率"黑洞组合" + 二人/三人组定制查询</div>
@@ -641,32 +665,20 @@
                 <button id="saveTokenBtn">保存 Token</button>
                 <button id="testTokenBtn" class="test-btn">🔍 测试 Token</button>
                 <span id="tokenStatus" class="token-status">⚪ 未设置</span>
+                <span id="authStatus" class="auth-status err">🔒 未认证</span>
             </div>
 
-            <div class="file-area">
-                <div class="upload-group">
-                    <label class="file-label">
-                        📂 上传比赛 JSON
-                        <input type="file" id="upload-json" accept=".json" style="display: none;">
-                    </label>
-                    <span id="file-name">📄 默认数据 (17场)</span>
-                </div>
-                <div class="stats-badge">
-                    <div class="stat-item">🏆 总场次: <span class="stat-number" id="total-games">-</span></div>
-                    <div class="stat-item">🎯 门槛(≥50%): <span class="stat-number" id="threshold-games">-</span></div>
-                    <div class="stat-item">📊 合格二人组: <span class="stat-number" id="qualified-pairs">-</span> / 三人组: <span class="stat-number" id="qualified-triplets">-</span></div>
-                </div>
-            </div>
             <div class="info-note">
                 🔥 最强组合 = 同队胜率排名（二人组默认应用50%门槛）。<br>
                 💀 最差组合 = 胜率0% 且 共同场次最多的前5组。<br>
                 🎛️ 三人组可通过开关切换是否过滤50%场次（默认关闭，显示所有组合）。<br>
-                🔽 下拉框支持全量球员查询，二人组/三人组均不可选择重复球员。
+                🔽 下拉框支持全量球员查询，二人组/三人组均不可选择重复球员。<br>
+                🔐 所有操作需输入密码（默认：<strong>newba2026</strong>）
             </div>
         </div>
 
         <!-- ============================================================ -->
-        <!-- 1. 球星风向标（挪到最上面） -->
+        <!-- 1. 球星风向标 -->
         <!-- ============================================================ -->
         <div class="rank-card">
             <div class="card-header">
@@ -702,7 +714,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- 2. 化学反应实验室（二人组 / 三人组 / 最弱 / 查询）全部挪到下面 -->
+        <!-- 2. 化学反应实验室（二人组 / 三人组 / 最弱 / 查询） -->
         <!-- ============================================================ -->
 
         <!-- 最强二人组 -->
@@ -803,15 +815,63 @@
             <div id="tripletQueryResult" class="triplet-query-result" style="display: none;"></div>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- 底部：上传比赛 JSON + 统计信息（移到最下面） -->
+        <!-- ============================================================ -->
+        <div class="rank-card">
+            <div class="card-header">
+                <h2>📂 数据管理</h2>
+                <div class="card-badge">上传 JSON 同步至 GitHub</div>
+            </div>
+            <div class="upload-section">
+                <div class="file-area">
+                    <div class="upload-group">
+                        <label class="file-label">
+                            📂 上传比赛 JSON
+                            <input type="file" id="upload-json" accept=".json" style="display: none;">
+                        </label>
+                        <span id="file-name">📄 当前数据 (0场)</span>
+                    </div>
+                    <div class="stats-badge">
+                        <div class="stat-item">🏆 总场次: <span class="stat-number" id="total-games">-</span></div>
+                        <div class="stat-item">🎯 门槛(≥50%): <span class="stat-number" id="threshold-games">-</span></div>
+                        <div class="stat-item">📊 合格二人组: <span class="stat-number" id="qualified-pairs">-</span> / 三人组: <span class="stat-number" id="qualified-triplets">-</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <footer>⚡ 数据基于同队共同登场 | 二人/三人胜率 = 胜场/共同场次</footer>
     </div>
 
     <script>
-        // ========== GitHub 配置（从 localStorage 或输入框读取） ==========
+        // ========== 密码配置 ==========
+        const APP_PASSWORD = 'newba2026';  // 可修改为其他密码
+
+        // ========== GitHub 配置 ==========
         const GITHUB_OWNER = 'joes-bot';
         const GITHUB_REPO = 'newba';
         const GITHUB_BRANCH = 'main';
         const GITHUB_FILE_PATH = 'data.json';
+
+        // ---------- 全局认证状态 ----------
+        let isAuthenticated = false;
+
+        // ---------- 密码验证函数 ----------
+        function checkPassword(allowRemember = true) {
+            if (isAuthenticated) return true;
+            const input = prompt('请输入操作密码：');
+            if (input === null) return false; // 用户取消
+            if (input === APP_PASSWORD) {
+                isAuthenticated = true;
+                document.getElementById('authStatus').textContent = '🔓 已认证';
+                document.getElementById('authStatus').className = 'auth-status ok';
+                return true;
+            } else {
+                alert('密码错误，操作被拒绝！');
+                return false;
+            }
+        }
 
         // ---------- 球员真实姓名映射 ----------
         const playerMap = new Map([
@@ -1268,6 +1328,7 @@
 
         // ===== 球星风向标 - 排序处理 =====
         function handleStarSort(column) {
+            if (!checkPassword()) return;
             if (starSort.column === column) {
                 starSort.order = starSort.order === 'desc' ? 'asc' : 'desc';
             } else {
@@ -1347,6 +1408,7 @@
 
         // 二人组查询
         function queryPair(games) {
+            if (!checkPassword()) return;
             const nickA = selectA.value;
             const nickB = selectB.value;
             const resultDiv = document.getElementById('queryResult');
@@ -1427,6 +1489,7 @@
         selectTriC.addEventListener('change', refreshTripletSelects);
 
         function queryTriplet(games) {
+            if (!checkPassword()) return;
             const nickA = selectTriA.value;
             const nickB = selectTriB.value;
             const nickC = selectTriC.value;
@@ -1532,6 +1595,7 @@
         }
 
         function saveToken() {
+            if (!checkPassword()) return;
             const input = document.getElementById('githubTokenInput');
             const token = input.value.trim();
             if (token) {
@@ -1551,6 +1615,7 @@
 
         // 测试 Token
         async function testToken() {
+            if (!checkPassword()) return;
             const token = getGitHubToken();
             if (!token) {
                 updateTokenStatus('❌ 请先输入 Token', 'err');
@@ -1666,7 +1731,6 @@
             initPairSelects();
             initTripletSelects();
             refreshAll();
-            document.getElementById('file-name').innerHTML = `📄 当前数据 (${currentGames.length}场)`;
         }
 
         // ===== 监听开关变化 =====
@@ -1675,12 +1739,16 @@
             refreshAll();
         });
 
-        // ===== 查询按钮绑定 =====
+        // ===== 查询按钮绑定（已包含密码验证） =====
         document.getElementById('queryBtn').addEventListener('click', () => queryPair(currentGames));
         document.getElementById('queryTripletBtn').addEventListener('click', () => queryTriplet(currentGames));
 
-        // ===== 文件上传 =====
+        // ===== 文件上传（需密码） =====
         document.getElementById('upload-json').addEventListener('change', async function(e) {
+            if (!checkPassword()) {
+                this.value = '';
+                return;
+            }
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -1709,7 +1777,7 @@
             e.target.value = '';
         });
 
-        // ===== 绑定球星风向标排序事件 =====
+        // ===== 绑定球星风向标排序事件（内部已包含密码） =====
         bindStarSortEvents();
         document.getElementById('filterLowGamesCheckbox').addEventListener('change', updateStarStats);
 
