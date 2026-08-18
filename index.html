@@ -730,6 +730,14 @@
     </div>
 
     <script>
+        // ========== GitHub 配置（请替换为你的 token） ==========
+        const GITHUB_OWNER = 'joes-bot';
+        const GITHUB_REPO = 'newba';
+        const GITHUB_BRANCH = 'main';
+        const GITHUB_FILE_PATH = 'data.json';
+        // 请将下面的 token 替换为你自己的 Personal Access Token (classic)
+        const GITHUB_TOKEN = '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';   // 例如 'ghp_xxxxxx'
+
         // ---------- 球员真实姓名映射 ----------
         const playerMap = new Map([
             ["ANDY-陈", "陈敬颂"],
@@ -1218,7 +1226,6 @@
             const filterEnabled = document.getElementById('tripletFilterToggle').checked;
             renderTripletRanking(currentGames, filterEnabled);
             document.getElementById('file-name').innerHTML = `📄 当前数据 (${currentGames.length}场)`;
-            // 新增：更新球星风向标
             updateStarStats();
         }
 
@@ -1438,38 +1445,116 @@
                 ], "greenPlayers": ["古月", "ANDY-陈", "water", "墨竹", "王继鹏", "谢清清", "富升包装", "谢宾", "风", "董克诚"] }
         ];
 
-        currentGames = [...DEFAULT_GAMES];
-        initPairSelects();
-        initTripletSelects();
-        refreshAll();
+        // ===== 新增：从 GitHub 加载数据 =====
+        async function loadFromGitHub() {
+            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_FILE_PATH}`;
+            try {
+                const response = await fetch(rawUrl);
+                if (!response.ok) throw new Error('Fetch failed');
+                const data = await response.json();
+                if (Array.isArray(data) && data.length) {
+                    currentGames = data;
+                    return true;
+                }
+            } catch (e) {
+                console.warn('Failed to load from GitHub, using default.', e);
+            }
+            return false;
+        }
 
-        // 监听开关变化
+        // ===== 新增：上传数据到 GitHub =====
+        async function uploadToGitHub(data) {
+            // 获取当前文件的 SHA
+            const getUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+            let sha = '';
+            try {
+                const getRes = await fetch(getUrl, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                });
+                if (getRes.ok) {
+                    const json = await getRes.json();
+                    sha = json.sha;
+                } else if (getRes.status !== 404) {
+                    throw new Error('Failed to get file info');
+                }
+            } catch (e) {
+                console.error('获取文件信息失败', e);
+                throw e;
+            }
+
+            const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+            const payload = {
+                message: 'Update match data via web upload',
+                content: contentBase64,
+                branch: GITHUB_BRANCH
+            };
+            if (sha) payload.sha = sha;
+
+            const putUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+            const putRes = await fetch(putUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            if (!putRes.ok) {
+                const err = await putRes.json();
+                throw new Error(`GitHub API error: ${err.message || putRes.status}`);
+            }
+            return await putRes.json();
+        }
+
+        // ===== 初始化应用 =====
+        async function initApp() {
+            const loaded = await loadFromGitHub();
+            if (!loaded) {
+                currentGames = [...DEFAULT_GAMES];
+                // 可选择性将默认数据首次上传到 GitHub（可选）
+                // 但为了避免 token 未配置，不自动上传
+            }
+            initPairSelects();
+            initTripletSelects();
+            refreshAll();
+            document.getElementById('file-name').innerHTML = `📄 当前数据 (${currentGames.length}场)`;
+        }
+
+        // ===== 监听开关变化 =====
         const filterToggle = document.getElementById('tripletFilterToggle');
         filterToggle.addEventListener('change', () => {
             refreshAll();
         });
 
-        // 查询按钮绑定
+        // ===== 查询按钮绑定 =====
         document.getElementById('queryBtn').addEventListener('click', () => queryPair(currentGames));
         document.getElementById('queryTripletBtn').addEventListener('click', () => queryTriplet(currentGames));
 
-        // 文件上传
-        document.getElementById('upload-json').addEventListener('change', (e) => {
+        // ===== 文件上传 =====
+        document.getElementById('upload-json').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(ev) {
+            reader.onload = async function(ev) {
                 try {
                     const json = JSON.parse(ev.target.result);
-                    if (Array.isArray(json) && json.length && json[0].hasOwnProperty('winner') && json[0]
-                        .hasOwnProperty('purplePlayers') && json[0].hasOwnProperty('greenPlayers')) {
-                        currentGames = json;
-                        refreshAll();
-                        document.getElementById('file-name').innerHTML = `📁 已加载: ${file.name} (${currentGames.length}场)`;
-                        document.getElementById('queryResult').style.display = 'none';
-                        document.getElementById('tripletQueryResult').style.display = 'none';
-                    } else alert("无效格式：需包含 winner, purplePlayers, greenPlayers");
-                } catch (err) { alert("JSON解析失败：" + err.message); }
+                    if (!Array.isArray(json) || !json.length || !json[0].hasOwnProperty('winner')) {
+                        alert('无效格式：需包含 winner, purplePlayers, greenPlayers');
+                        return;
+                    }
+                    // 更新本地数据
+                    currentGames = json;
+                    // 上传到 GitHub
+                    await uploadToGitHub(json);
+                    // 刷新 UI
+                    refreshAll();
+                    document.getElementById('file-name').innerHTML = `📁 已加载并保存: ${file.name} (${currentGames.length}场)`;
+                    document.getElementById('queryResult').style.display = 'none';
+                    document.getElementById('tripletQueryResult').style.display = 'none';
+                    alert('数据已成功保存到 GitHub 仓库！所有访问者将看到最新数据。');
+                } catch (err) {
+                    alert('上传失败：' + err.message);
+                }
             };
             reader.readAsText(file);
             e.target.value = '';
@@ -1477,9 +1562,10 @@
 
         // ===== 绑定球星风向标排序事件 =====
         bindStarSortEvents();
-
-        // 监听过滤复选框（已经在 bindStarSortEvents 中绑定了 change 事件，但为了确保，再绑一次）
         document.getElementById('filterLowGamesCheckbox').addEventListener('change', updateStarStats);
+
+        // ===== 启动应用 =====
+        initApp();
     </script>
 </body>
 </html>
