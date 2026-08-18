@@ -815,26 +815,23 @@
             <div id="tripletQueryResult" class="triplet-query-result" style="display: none;"></div>
         </div>
 
-        <!-- ============================================================ -->
-        <!-- 底部：数据管理（包含 Token 输入、状态、所有操作按钮） -->
-        <!-- ============================================================ -->
+       
         <div class="rank-card">
             <div class="card-header">
-                <h2>📂 数据管理</h2>
-                <div class="card-badge">Token 管理 · 上传 JSON 同步至 GitHub</div>
+                <h2>📂 后台管理</h2>
             </div>
             <div class="upload-section">
                 <!-- Token 输入行 -->
                 <div class="token-input-row">
-                    <label for="githubTokenInput">🔑 GitHub Token</label>
-                    <input type="text" id="githubTokenInput" placeholder="输入你的 Personal Access Token (repo权限)" autocomplete="off">
+                    <label for="githubTokenInput">🔑 通关密钥</label>
+                    <input type="text" id="githubTokenInput" placeholder="" autocomplete="off">
                     <span id="tokenStatus" class="token-status">⚪ 未设置</span>
                 </div>
 
                 <div class="file-area">
                     <div class="upload-group">
                         <label class="file-label" id="uploadLabel">
-                            📂 上传比赛 JSON
+                            📂 updown
                             <input type="file" id="upload-json" accept=".json" style="display: none;">
                         </label>
                         <span id="file-name">📄 当前数据 (0场)</span>
@@ -848,8 +845,8 @@
 
                 <!-- 底部操作按钮组 -->
                 <div class="bottom-actions">
-                    <button id="saveTokenBtn">💾 保存 Token</button>
-                    <button id="testTokenBtn" class="test-btn">🔍 测试 Token</button>
+                    <button id="saveTokenBtn">💾 save</button>
+                    <button id="testTokenBtn" class="test-btn">🔍 test</button>
                 </div>
             </div>
         </div>
@@ -858,10 +855,9 @@
     </div>
 
     <script>
-        // ========== 密码配置 ==========
-        const APP_PASSWORD = 'newba2026';  // 可修改
-
-        // ========== GitHub 配置 ==========
+        // ========== ==========
+        const APP_PASSWORD = 'newba2026';  
+  
         const GITHUB_OWNER = 'joes-bot';
         const GITHUB_REPO = 'newba';
         const GITHUB_BRANCH = 'main';
@@ -1605,11 +1601,11 @@
             const token = input.value.trim();
             if (token) {
                 localStorage.setItem('github_token', token);
-                updateTokenStatus('✅ Token 已保存', 'ok');
+                updateTokenStatus('✅ 已保存', 'ok');
                 alert('Token 已保存到本地浏览器！');
             } else {
                 localStorage.removeItem('github_token');
-                updateTokenStatus('⚪ Token 已清除', '');
+                updateTokenStatus('⚪ 已清除', '');
                 alert('Token 已清除');
             }
         }
@@ -1697,7 +1693,7 @@
                     document.getElementById('file-name').innerHTML = `📁 已加载并保存: ${file.name} (${currentGames.length}场)`;
                     document.getElementById('queryResult').style.display = 'none';
                     document.getElementById('tripletQueryResult').style.display = 'none';
-                    alert('数据已成功保存到 GitHub 仓库！所有访问者将看到最新数据。');
+                    alert('数据已成功保存到仓库！所有访问者将看到最新数据。');
                 } catch (err) {
                     alert('上传失败：' + err.message);
                 }
@@ -1710,7 +1706,7 @@
         async function uploadToGitHub(data) {
             const token = getGitHubToken();
             if (!token) {
-                throw new Error('请先设置 GitHub Token（页面顶部输入并保存）');
+                throw new Error('请先设置 （页面顶部输入并保存）');
             }
 
             const getUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
@@ -1729,7 +1725,7 @@
                     throw new Error(`获取文件信息失败 (HTTP ${getRes.status}): ${errText}`);
                 }
             } catch (e) {
-                throw new Error(`无法获取文件信息，请检查网络或Token是否正确。原始错误: ${e.message}`);
+                throw new Error(`无法获取文件信息，请检查网络是否正确。原始错误: ${e.message}`);
             }
 
             const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
