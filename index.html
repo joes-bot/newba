@@ -170,7 +170,7 @@
         .pair-name,
         .triplet-name {
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #0f2b3d;
         }
         .pair-nickname {
@@ -685,33 +685,32 @@
                 <h2>📊 New_BA大联盟球星风向标</h2>
                 <div class="card-badge">实时排名 · 胜率 + 状态</div>
             </div>
-            <div class="stats-section">
-                <div class="filter-bar">
-                    <div class="match-count" id="starMatchCountDisplay">当前比赛场数：0</div>
-                    <label class="filter-label">
-                        <input type="checkbox" id="filterLowGamesCheckbox" checked>
-                        🧹 过滤低参赛选手
-                    </label>
-                </div>
-                <div class="stats-table-wrap">
-                    <table class="stats-table" id="starStatsTable">
-                        <thead>
-                            <tr>
-                                <th data-sort="rank">排名</th>
-                                <th data-sort="player">球员</th>
-                                <th data-sort="wins">胜场</th>
-                                <th data-sort="losses">负场</th>
-                                <th data-sort="winRate">胜率</th>
-                                <th data-sort="streak">当前状态</th>
-                            </tr>
-                        </thead>
-                        <tbody id="starStatsBody">
-                            <tr><td colspan="6" class="empty-message">暂无比赛记录</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+           <div class="stats-section">
+    <div class="stats-table-wrap">
+        <table class="stats-table" id="starStatsTable">
+            <thead>
+                <tr>
+                    <th data-sort="rank">排名</th>
+                    <th data-sort="player">球员</th>
+                    <th data-sort="wins">胜场</th>
+                    <th data-sort="losses">负场</th>
+                    <th data-sort="winRate">胜率</th>
+                    <th data-sort="streak">当前状态</th>
+                </tr>
+            </thead>
+            <tbody id="starStatsBody">
+                <tr><td colspan="6" class="empty-message">暂无比赛记录</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="filter-bar">
+        <div class="match-count" id="starMatchCountDisplay">当前比赛场数：0</div>
+        <label class="filter-label">
+            <input type="checkbox" id="filterLowGamesCheckbox" checked>
+            🧹 过滤低参赛选手
+        </label>
+    </div>
+</div>
 
         <!-- ============================================================ -->
         <!-- 2. 化学反应实验室（二人组 / 三人组 / 最弱 / 查询） -->
