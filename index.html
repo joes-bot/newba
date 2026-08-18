@@ -41,65 +41,13 @@
             padding-left: 16px;
             margin: 6px 0 18px;
         }
-        .token-area {
-            background: #f0f7fa;
-            border-radius: 40px;
-            padding: 12px 20px;
-            margin-bottom: 16px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid #cfe0ea;
-        }
-        .token-area label {
-            font-weight: 600;
-            color: #1a5f7a;
-            font-size: 0.9rem;
-        }
-        .token-area input {
-            flex: 1;
-            min-width: 180px;
-            padding: 8px 16px;
-            border-radius: 40px;
-            border: 1px solid #cbdde9;
-            font-size: 0.9rem;
-            background: white;
-        }
-        .token-area button {
-            background: #1a5f7a;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-        .token-area button:hover {
-            background: #104b72;
-        }
-        .token-area .test-btn {
-            background: #2b9e6d;
-        }
-        .token-area .test-btn:hover {
-            background: #1f7c55;
-        }
-        .token-status {
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 20px;
+        .info-note {
+            font-size: 0.75rem;
+            color: #5c6f87;
+            margin-top: 14px;
             background: #eef3fc;
-        }
-        .token-status.ok {
-            color: #2e7d32;
-            background: #e8f5e9;
-        }
-        .token-status.err {
-            color: #c62828;
-            background: #ffebee;
+            padding: 8px 18px;
+            border-radius: 28px;
         }
         .auth-status {
             font-size: 0.85rem;
@@ -107,7 +55,7 @@
             padding: 4px 16px;
             border-radius: 20px;
             background: #eef3fc;
-            margin-left: 8px;
+            margin-left: 12px;
         }
         .auth-status.ok {
             color: #2e7d32;
@@ -116,14 +64,6 @@
         .auth-status.err {
             color: #c62828;
             background: #ffebee;
-        }
-        .info-note {
-            font-size: 0.75rem;
-            color: #5c6f87;
-            margin-top: 14px;
-            background: #eef3fc;
-            padding: 8px 18px;
-            border-radius: 28px;
         }
         .rank-card {
             background: white;
@@ -354,7 +294,7 @@
             margin-top: 16px;
         }
 
-        /* ===== 球星风向标样式（统一调整为青绿主题） ===== */
+        /* ===== 球星风向标样式 ===== */
         .stats-section {
             padding: 4px 0 12px;
         }
@@ -460,7 +400,7 @@
             width: 48px;
         }
 
-        /* 底部上传区域 */
+        /* ===== 底部数据管理区域 ===== */
         .upload-section {
             padding: 20px 28px;
         }
@@ -489,6 +429,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
+            display: inline-block;
         }
         .file-label:hover {
             background: #104b72;
@@ -520,6 +461,77 @@
             font-weight: 800;
             font-size: 1.4rem;
             color: #1f7a5c;
+        }
+
+        .bottom-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .bottom-actions button {
+            background: #1a5f7a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        .bottom-actions button:hover {
+            background: #104b72;
+            transform: translateY(-1px);
+        }
+        .bottom-actions .test-btn {
+            background: #2b9e6d;
+        }
+        .bottom-actions .test-btn:hover {
+            background: #1f7c55;
+        }
+
+        /* Token 输入行（在数据管理卡片内） */
+        .token-input-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            background: #f0f7fa;
+            border-radius: 40px;
+            padding: 12px 20px;
+            margin-bottom: 16px;
+            border: 1px solid #cfe0ea;
+        }
+        .token-input-row label {
+            font-weight: 600;
+            color: #1a5f7a;
+            font-size: 0.9rem;
+        }
+        .token-input-row input {
+            flex: 1;
+            min-width: 180px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #cbdde9;
+            font-size: 0.9rem;
+            background: white;
+        }
+        .token-status {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #eef3fc;
+        }
+        .token-status.ok {
+            color: #2e7d32;
+            background: #e8f5e9;
+        }
+        .token-status.err {
+            color: #c62828;
+            background: #ffebee;
         }
 
         /* 移动端自适应 */
@@ -617,15 +629,24 @@
                 width: 50px;
                 font-size: 1rem;
             }
-            .token-area {
+            .token-input-row {
                 flex-direction: column;
                 align-items: stretch;
             }
-            .token-area input {
+            .token-input-row input {
                 min-width: unset;
             }
             .upload-section {
                 padding: 12px 16px;
+            }
+            .bottom-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .bottom-actions button {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
             }
         }
         @media (max-width: 420px) {
@@ -653,29 +674,8 @@
 </head>
 <body>
     <div class="container">
-        <!-- ===== 顶部：标题 + Token ===== -->
-        <div class="header-card">
-            <h1>🏀 化学反应实验室 · 双人/三人统治力</h1>
-            <div class="sub">共同出战 ≥ 总场次50% 胜率排名 + 零胜率"黑洞组合" + 二人/三人组定制查询</div>
-
-            <!-- Token 输入区域 -->
-            <div class="token-area">
-                <label for="githubTokenInput">🔑 GitHub Token</label>
-                <input type="text" id="githubTokenInput" placeholder="输入你的 Personal Access Token (repo权限)" autocomplete="off">
-                <button id="saveTokenBtn">保存 Token</button>
-                <button id="testTokenBtn" class="test-btn">🔍 测试 Token</button>
-                <span id="tokenStatus" class="token-status">⚪ 未设置</span>
-                <span id="authStatus" class="auth-status err">🔒 未认证</span>
-            </div>
-
-            <div class="info-note">
-                🔥 最强组合 = 同队胜率排名（二人组默认应用50%门槛）。<br>
-                💀 最差组合 = 胜率0% 且 共同场次最多的前5组。<br>
-                🎛️ 三人组可通过开关切换是否过滤50%场次（默认关闭，显示所有组合）。<br>
-                🔽 下拉框支持全量球员查询，二人组/三人组均不可选择重复球员。<br>
-                🔐 所有操作需输入密码（默认：<strong>newba2026</strong>）
-            </div>
-        </div>
+        <!-- ===== 顶部：标题 + 提示（无任何操作按钮和Token输入） ===== -->
+        
 
         <!-- ============================================================ -->
         <!-- 1. 球星风向标 -->
@@ -689,7 +689,7 @@
                 <div class="filter-bar">
                     <div class="match-count" id="starMatchCountDisplay">当前比赛场数：0</div>
                     <label class="filter-label">
-                        <input type="checkbox" id="filterLowGamesCheckbox">
+                        <input type="checkbox" id="filterLowGamesCheckbox" checked>
                         🧹 过滤低参赛选手
                     </label>
                 </div>
@@ -816,17 +816,24 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- 底部：上传比赛 JSON + 统计信息（移到最下面） -->
+        <!-- 底部：数据管理（包含 Token 输入、状态、所有操作按钮） -->
         <!-- ============================================================ -->
         <div class="rank-card">
             <div class="card-header">
                 <h2>📂 数据管理</h2>
-                <div class="card-badge">上传 JSON 同步至 GitHub</div>
+                <div class="card-badge">Token 管理 · 上传 JSON 同步至 GitHub</div>
             </div>
             <div class="upload-section">
+                <!-- Token 输入行 -->
+                <div class="token-input-row">
+                    <label for="githubTokenInput">🔑 GitHub Token</label>
+                    <input type="text" id="githubTokenInput" placeholder="输入你的 Personal Access Token (repo权限)" autocomplete="off">
+                    <span id="tokenStatus" class="token-status">⚪ 未设置</span>
+                </div>
+
                 <div class="file-area">
                     <div class="upload-group">
-                        <label class="file-label">
+                        <label class="file-label" id="uploadLabel">
                             📂 上传比赛 JSON
                             <input type="file" id="upload-json" accept=".json" style="display: none;">
                         </label>
@@ -838,6 +845,12 @@
                         <div class="stat-item">📊 合格二人组: <span class="stat-number" id="qualified-pairs">-</span> / 三人组: <span class="stat-number" id="qualified-triplets">-</span></div>
                     </div>
                 </div>
+
+                <!-- 底部操作按钮组 -->
+                <div class="bottom-actions">
+                    <button id="saveTokenBtn">💾 保存 Token</button>
+                    <button id="testTokenBtn" class="test-btn">🔍 测试 Token</button>
+                </div>
             </div>
         </div>
 
@@ -846,7 +859,7 @@
 
     <script>
         // ========== 密码配置 ==========
-        const APP_PASSWORD = 'newba2026';  // 可修改为其他密码
+        const APP_PASSWORD = 'newba2026';  // 可修改
 
         // ========== GitHub 配置 ==========
         const GITHUB_OWNER = 'joes-bot';
@@ -858,17 +871,18 @@
         let isAuthenticated = false;
 
         // ---------- 密码验证函数 ----------
-        function checkPassword(allowRemember = true) {
+        function checkPassword() {
             if (isAuthenticated) return true;
-            const input = prompt('请输入操作密码：');
-            if (input === null) return false; // 用户取消
+            const input = prompt('你想干嘛？');
+            if (input === null) return false;
             if (input === APP_PASSWORD) {
                 isAuthenticated = true;
-                document.getElementById('authStatus').textContent = '🔓 已认证';
-                document.getElementById('authStatus').className = 'auth-status ok';
+                const el = document.getElementById('authStatus');
+                el.textContent = '🔓 已认证';
+                el.className = 'auth-status ok';
                 return true;
             } else {
-                alert('密码错误，操作被拒绝！');
+                alert('兄弟，你想多了，这是付费内容，请充值！');
                 return false;
             }
         }
@@ -1165,11 +1179,9 @@
         // ===== 球星风向标 - 计算球员统计数据 =====
         function computePlayerStats(games) {
             const stats = {};
-            // 初始化所有在 playerMap 中的球员
             for (const [nick, real] of playerMap) {
                 stats[nick] = { wins: 0, losses: 0, matches: [] };
             }
-            // 按日期正序统计，便于计算连胜连败
             const sorted = [...games].sort((a, b) => a.date.localeCompare(b.date));
             for (const rec of sorted) {
                 const winner = rec.winner;
@@ -1209,13 +1221,11 @@
 
             const stats = computePlayerStats(currentGames);
 
-            // 筛选有记录的球员
             let players = Array.from(playerMap.keys()).filter(nick => {
                 const s = stats[nick];
                 return s && (s.wins > 0 || s.losses > 0);
             });
 
-            // 过滤低参赛选手
             const filterCheckbox = document.getElementById('filterLowGamesCheckbox');
             if (filterCheckbox && filterCheckbox.checked) {
                 const threshold = totalGames * 0.5;
@@ -1225,13 +1235,11 @@
                 });
             }
 
-            // 构建排序数据
             const data = players.map(nick => {
                 const s = stats[nick];
                 const total = s.wins + s.losses;
                 const winRate = total === 0 ? 0 : s.wins / total;
 
-                // 连胜连败
                 let streakValue = 0;
                 if (s.matches.length > 0) {
                     const last = s.matches[s.matches.length - 1];
@@ -1257,7 +1265,6 @@
                 };
             });
 
-            // 排序
             data.sort((a, b) => {
                 let va, vb;
                 switch (starSort.column) {
@@ -1292,7 +1299,6 @@
                 else return va < vb ? -1 : 1;
             });
 
-            // 渲染
             if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="empty-message">暂无符合条件的数据</td></tr>';
                 return;
@@ -1315,7 +1321,6 @@
             });
             tbody.innerHTML = html;
 
-            // 更新表头排序指示器
             const ths = document.querySelectorAll('#starStatsTable th');
             ths.forEach(th => {
                 th.classList.remove('sort-asc', 'sort-desc');
@@ -1353,7 +1358,7 @@
             }
         }
 
-        // ===== 全量刷新（原有 + 球星风向标） =====
+        // ===== 全量刷新 =====
         function refreshAll() {
             if (!currentGames.length) return;
             updateGlobalStats(currentGames);
@@ -1601,9 +1606,11 @@
             if (token) {
                 localStorage.setItem('github_token', token);
                 updateTokenStatus('✅ Token 已保存', 'ok');
+                alert('Token 已保存到本地浏览器！');
             } else {
                 localStorage.removeItem('github_token');
                 updateTokenStatus('⚪ Token 已清除', '');
+                alert('Token 已清除');
             }
         }
 
@@ -1613,7 +1620,6 @@
             el.className = 'token-status' + (type ? ' ' + type : '');
         }
 
-        // 测试 Token
         async function testToken() {
             if (!checkPassword()) return;
             const token = getGitHubToken();
@@ -1630,14 +1636,18 @@
                 });
                 if (res.ok) {
                     updateTokenStatus('✅ Token 有效，文件可访问', 'ok');
+                    alert('Token 有效！文件可正常访问。');
                 } else if (res.status === 404) {
                     updateTokenStatus('✅ Token 有效，但 data.json 不存在（将创建）', 'ok');
+                    alert('Token 有效，但 data.json 文件不存在（上传时会自动创建）。');
                 } else {
                     const errText = await res.text();
                     updateTokenStatus(`❌ 错误 ${res.status}: ${errText.substring(0,50)}`, 'err');
+                    alert(`Token 测试失败：HTTP ${res.status}\n${errText.substring(0,200)}`);
                 }
             } catch (e) {
                 updateTokenStatus('❌ 网络错误: ' + e.message, 'err');
+                alert('网络错误：' + e.message);
             }
         }
 
@@ -1650,27 +1660,53 @@
             }
         });
 
+        // 绑定底部按钮事件
         document.getElementById('saveTokenBtn').addEventListener('click', saveToken);
         document.getElementById('testTokenBtn').addEventListener('click', testToken);
 
-        // ===== 从 GitHub 加载数据 =====
-        async function loadFromGitHub() {
-            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_FILE_PATH}`;
-            try {
-                const response = await fetch(rawUrl);
-                if (!response.ok) throw new Error('Fetch failed');
-                const data = await response.json();
-                if (Array.isArray(data) && data.length) {
-                    currentGames = data;
-                    return true;
-                }
-            } catch (e) {
-                console.warn('Failed to load from GitHub, using default.', e);
+        // ===== 文件上传 - 点击 label 先验证密码 =====
+        document.getElementById('uploadLabel').addEventListener('click', function(e) {
+            if (!checkPassword()) {
+                e.preventDefault();
+                return false;
             }
-            return false;
-        }
+            // 密码通过，触发 file input 点击
+            document.getElementById('upload-json').click();
+        });
 
-        // ===== 上传数据到 GitHub =====
+        // 文件选择后处理
+        document.getElementById('upload-json').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            // 因为密码已在 label 点击时验证过，这里无需重复验证，但为防止直接操作 input，可再次验证
+            if (!checkPassword()) {
+                this.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async function(ev) {
+                try {
+                    const json = JSON.parse(ev.target.result);
+                    if (!Array.isArray(json) || !json.length || !json[0].hasOwnProperty('winner')) {
+                        alert('无效格式：需包含 winner, purplePlayers, greenPlayers');
+                        return;
+                    }
+                    currentGames = json;
+                    await uploadToGitHub(json);
+                    refreshAll();
+                    document.getElementById('file-name').innerHTML = `📁 已加载并保存: ${file.name} (${currentGames.length}场)`;
+                    document.getElementById('queryResult').style.display = 'none';
+                    document.getElementById('tripletQueryResult').style.display = 'none';
+                    alert('数据已成功保存到 GitHub 仓库！所有访问者将看到最新数据。');
+                } catch (err) {
+                    alert('上传失败：' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            this.value = ''; // 允许重复上传同一文件
+        });
+
+        // ===== 上传函数 =====
         async function uploadToGitHub(data) {
             const token = getGitHubToken();
             if (!token) {
@@ -1688,13 +1724,11 @@
                     sha = json.sha;
                 } else if (getRes.status === 404) {
                     // 文件不存在，将创建
-                    console.warn('File not found, will create new.');
                 } else {
                     const errText = await getRes.text();
                     throw new Error(`获取文件信息失败 (HTTP ${getRes.status}): ${errText}`);
                 }
             } catch (e) {
-                console.error('获取文件信息失败', e);
                 throw new Error(`无法获取文件信息，请检查网络或Token是否正确。原始错误: ${e.message}`);
             }
 
@@ -1722,6 +1756,23 @@
             return await putRes.json();
         }
 
+        // ===== 从 GitHub 加载数据 =====
+        async function loadFromGitHub() {
+            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_FILE_PATH}`;
+            try {
+                const response = await fetch(rawUrl);
+                if (!response.ok) throw new Error('Fetch failed');
+                const data = await response.json();
+                if (Array.isArray(data) && data.length) {
+                    currentGames = data;
+                    return true;
+                }
+            } catch (e) {
+                console.warn('Failed to load from GitHub, using default.', e);
+            }
+            return false;
+        }
+
         // ===== 初始化应用 =====
         async function initApp() {
             const loaded = await loadFromGitHub();
@@ -1733,55 +1784,21 @@
             refreshAll();
         }
 
-        // ===== 监听开关变化 =====
+        // ===== 监听开关 =====
         const filterToggle = document.getElementById('tripletFilterToggle');
         filterToggle.addEventListener('change', () => {
             refreshAll();
         });
 
-        // ===== 查询按钮绑定（已包含密码验证） =====
+        // ===== 查询按钮绑定 =====
         document.getElementById('queryBtn').addEventListener('click', () => queryPair(currentGames));
         document.getElementById('queryTripletBtn').addEventListener('click', () => queryTriplet(currentGames));
 
-        // ===== 文件上传（需密码） =====
-        document.getElementById('upload-json').addEventListener('change', async function(e) {
-            if (!checkPassword()) {
-                this.value = '';
-                return;
-            }
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(ev) {
-                try {
-                    const json = JSON.parse(ev.target.result);
-                    if (!Array.isArray(json) || !json.length || !json[0].hasOwnProperty('winner')) {
-                        alert('无效格式：需包含 winner, purplePlayers, greenPlayers');
-                        return;
-                    }
-                    // 更新本地数据
-                    currentGames = json;
-                    // 上传到 GitHub
-                    await uploadToGitHub(json);
-                    // 刷新 UI
-                    refreshAll();
-                    document.getElementById('file-name').innerHTML = `📁 已加载并保存: ${file.name} (${currentGames.length}场)`;
-                    document.getElementById('queryResult').style.display = 'none';
-                    document.getElementById('tripletQueryResult').style.display = 'none';
-                    alert('数据已成功保存到 GitHub 仓库！所有访问者将看到最新数据。');
-                } catch (err) {
-                    alert('上传失败：' + err.message);
-                }
-            };
-            reader.readAsText(file);
-            e.target.value = '';
-        });
-
-        // ===== 绑定球星风向标排序事件（内部已包含密码） =====
+        // ===== 绑定球星风向标排序事件 =====
         bindStarSortEvents();
         document.getElementById('filterLowGamesCheckbox').addEventListener('change', updateStarStats);
 
-        // ===== 启动应用 =====
+        // ===== 启动 =====
         initApp();
     </script>
 </body>
