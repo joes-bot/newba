@@ -41,6 +41,66 @@
             padding-left: 16px;
             margin: 6px 0 18px;
         }
+        .token-area {
+            background: #f0f7fa;
+            border-radius: 40px;
+            padding: 12px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #cfe0ea;
+        }
+        .token-area label {
+            font-weight: 600;
+            color: #1a5f7a;
+            font-size: 0.9rem;
+        }
+        .token-area input {
+            flex: 1;
+            min-width: 180px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #cbdde9;
+            font-size: 0.9rem;
+            background: white;
+        }
+        .token-area button {
+            background: #1a5f7a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .token-area button:hover {
+            background: #104b72;
+        }
+        .token-area .test-btn {
+            background: #2b9e6d;
+        }
+        .token-area .test-btn:hover {
+            background: #1f7c55;
+        }
+        .token-status {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #eef3fc;
+        }
+        .token-status.ok {
+            color: #2e7d32;
+            background: #e8f5e9;
+        }
+        .token-status.err {
+            color: #c62828;
+            background: #ffebee;
+        }
         .file-area {
             background: #f9fdfe;
             border-radius: 28px;
@@ -536,6 +596,13 @@
                 width: 50px;
                 font-size: 1rem;
             }
+            .token-area {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .token-area input {
+                min-width: unset;
+            }
         }
         @media (max-width: 420px) {
             .stats-table {
@@ -562,10 +629,20 @@
 </head>
 <body>
     <div class="container">
-        <!-- ===== 顶部：标题 + 文件上传 ===== -->
+        <!-- ===== 顶部：标题 + Token 输入 ===== -->
         <div class="header-card">
             <h1>🏀 化学反应实验室 · 双人/三人统治力</h1>
             <div class="sub">共同出战 ≥ 总场次50% 胜率排名 + 零胜率"黑洞组合" + 二人/三人组定制查询</div>
+
+            <!-- Token 输入区域 -->
+            <div class="token-area">
+                <label for="githubTokenInput">🔑 GitHub Token</label>
+                <input type="text" id="githubTokenInput" placeholder="输入你的 Personal Access Token (repo权限)" autocomplete="off">
+                <button id="saveTokenBtn">保存 Token</button>
+                <button id="testTokenBtn" class="test-btn">🔍 测试 Token</button>
+                <span id="tokenStatus" class="token-status">⚪ 未设置</span>
+            </div>
+
             <div class="file-area">
                 <div class="upload-group">
                     <label class="file-label">
@@ -730,13 +807,11 @@
     </div>
 
     <script>
-        // ========== GitHub 配置（请替换为你的 token） ==========
+        // ========== GitHub 配置（从 localStorage 或输入框读取） ==========
         const GITHUB_OWNER = 'joes-bot';
         const GITHUB_REPO = 'newba';
         const GITHUB_BRANCH = 'main';
         const GITHUB_FILE_PATH = 'data.json';
-        // 请将下面的 token 替换为你自己的 Personal Access Token (classic)
-        const GITHUB_TOKEN = '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';   // 例如 'ghp_xxxxxx'
 
         // ---------- 球员真实姓名映射 ----------
         const playerMap = new Map([
@@ -1445,7 +1520,75 @@
                 ], "greenPlayers": ["古月", "ANDY-陈", "water", "墨竹", "王继鹏", "谢清清", "富升包装", "谢宾", "风", "董克诚"] }
         ];
 
-        // ===== 新增：从 GitHub 加载数据 =====
+        // ===== Token 管理 =====
+        function getGitHubToken() {
+            const input = document.getElementById('githubTokenInput');
+            const stored = localStorage.getItem('github_token');
+            if (stored) {
+                input.value = stored;
+                return stored;
+            }
+            return input.value.trim();
+        }
+
+        function saveToken() {
+            const input = document.getElementById('githubTokenInput');
+            const token = input.value.trim();
+            if (token) {
+                localStorage.setItem('github_token', token);
+                updateTokenStatus('✅ Token 已保存', 'ok');
+            } else {
+                localStorage.removeItem('github_token');
+                updateTokenStatus('⚪ Token 已清除', '');
+            }
+        }
+
+        function updateTokenStatus(text, type) {
+            const el = document.getElementById('tokenStatus');
+            el.textContent = text;
+            el.className = 'token-status' + (type ? ' ' + type : '');
+        }
+
+        // 测试 Token
+        async function testToken() {
+            const token = getGitHubToken();
+            if (!token) {
+                updateTokenStatus('❌ 请先输入 Token', 'err');
+                alert('请先输入 Token 并保存');
+                return;
+            }
+            updateTokenStatus('⏳ 测试中...', '');
+            try {
+                const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (res.ok) {
+                    updateTokenStatus('✅ Token 有效，文件可访问', 'ok');
+                } else if (res.status === 404) {
+                    updateTokenStatus('✅ Token 有效，但 data.json 不存在（将创建）', 'ok');
+                } else {
+                    const errText = await res.text();
+                    updateTokenStatus(`❌ 错误 ${res.status}: ${errText.substring(0,50)}`, 'err');
+                }
+            } catch (e) {
+                updateTokenStatus('❌ 网络错误: ' + e.message, 'err');
+            }
+        }
+
+        // 页面加载时恢复 token
+        window.addEventListener('DOMContentLoaded', function() {
+            const stored = localStorage.getItem('github_token');
+            if (stored) {
+                document.getElementById('githubTokenInput').value = stored;
+                updateTokenStatus('✅ Token 已保存', 'ok');
+            }
+        });
+
+        document.getElementById('saveTokenBtn').addEventListener('click', saveToken);
+        document.getElementById('testTokenBtn').addEventListener('click', testToken);
+
+        // ===== 从 GitHub 加载数据 =====
         async function loadFromGitHub() {
             const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_FILE_PATH}`;
             try {
@@ -1462,24 +1605,32 @@
             return false;
         }
 
-        // ===== 新增：上传数据到 GitHub =====
+        // ===== 上传数据到 GitHub =====
         async function uploadToGitHub(data) {
-            // 获取当前文件的 SHA
+            const token = getGitHubToken();
+            if (!token) {
+                throw new Error('请先设置 GitHub Token（页面顶部输入并保存）');
+            }
+
             const getUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
             let sha = '';
             try {
                 const getRes = await fetch(getUrl, {
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                    headers: { 'Authorization': `token ${token}` }
                 });
                 if (getRes.ok) {
                     const json = await getRes.json();
                     sha = json.sha;
-                } else if (getRes.status !== 404) {
-                    throw new Error('Failed to get file info');
+                } else if (getRes.status === 404) {
+                    // 文件不存在，将创建
+                    console.warn('File not found, will create new.');
+                } else {
+                    const errText = await getRes.text();
+                    throw new Error(`获取文件信息失败 (HTTP ${getRes.status}): ${errText}`);
                 }
             } catch (e) {
                 console.error('获取文件信息失败', e);
-                throw e;
+                throw new Error(`无法获取文件信息，请检查网络或Token是否正确。原始错误: ${e.message}`);
             }
 
             const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
@@ -1494,7 +1645,7 @@
             const putRes = await fetch(putUrl, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Authorization': `token ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
@@ -1511,8 +1662,6 @@
             const loaded = await loadFromGitHub();
             if (!loaded) {
                 currentGames = [...DEFAULT_GAMES];
-                // 可选择性将默认数据首次上传到 GitHub（可选）
-                // 但为了避免 token 未配置，不自动上传
             }
             initPairSelects();
             initTripletSelects();
