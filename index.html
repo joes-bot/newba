@@ -335,7 +335,7 @@
             margin-top: 16px;
         }
 
-        /* ===== 新增：球星风向标样式（从分组程序.html摘录并适配） ===== */
+        /* ===== 球星风向标样式（统一调整为青绿主题） ===== */
         .stats-section {
             padding: 4px 0 12px;
         }
@@ -353,7 +353,7 @@
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: 600;
-            color: #1565c0;
+            color: #1a5f7a;
             white-space: nowrap;
         }
         .filter-label {
@@ -362,17 +362,18 @@
             gap: 8px;
             font-size: 0.85rem;
             font-weight: 500;
-            background: #f0e6ff;
+            background: #e6f2f5;
             padding: 6px 16px;
             border-radius: 20px;
             cursor: pointer;
             user-select: none;
             white-space: nowrap;
+            color: #1a4a5e;
         }
         .filter-label input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #7b1fa2;
+            accent-color: #1d6f5c;
             cursor: pointer;
             flex-shrink: 0;
         }
@@ -390,7 +391,7 @@
             font-size: 0.9rem;
         }
         .stats-table th {
-            background: #7b1fa2;
+            background: #1a5f7a;
             color: white;
             padding: 12px 12px;
             font-weight: 600;
@@ -401,7 +402,7 @@
             white-space: nowrap;
         }
         .stats-table th:hover {
-            background: #9c27b0;
+            background: #2b7a9c;
         }
         .stats-table th.sort-asc::after {
             content: " ↑";
@@ -417,10 +418,10 @@
             vertical-align: middle;
         }
         .stats-table tr:nth-child(even) {
-            background-color: #f9f5ff;
+            background-color: #f5fafc;
         }
         .stats-table tr:hover td {
-            background-color: #f3edff;
+            background-color: #edf5f8;
         }
         .win-streak {
             color: #2e7d32;
@@ -431,14 +432,15 @@
             font-weight: 700;
         }
         .player-name-cell {
-            font-weight: 600;
-            color: #4a148c;
+            font-weight: 700;
+            color: #1a5f7a;
         }
         .stats-rank {
             font-weight: 800;
-            color: #4a148c;
+            color: #268e6c;
             width: 48px;
         }
+
         /* 移动端自适应 */
         @media (max-width: 640px) {
             .stats-table {
@@ -495,6 +497,45 @@
             .upload-group {
                 justify-content: center;
             }
+            .query-container,
+            .triplet-query-container {
+                padding: 16px 16px 20px;
+                gap: 16px;
+            }
+            .query-input-group {
+                min-width: 140px;
+            }
+            .query-btn {
+                padding: 10px 24px;
+                width: 100%;
+                justify-content: center;
+            }
+            .query-result,
+            .triplet-query-result {
+                margin: 6px 16px 20px;
+                padding: 14px 16px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .result-stats {
+                gap: 12px;
+            }
+            .result-stat {
+                padding: 4px 14px;
+                font-size: 0.8rem;
+            }
+            .ranking-table {
+                font-size: 0.78rem;
+                min-width: 480px;
+            }
+            .ranking-table th,
+            .ranking-table td {
+                padding: 10px 12px;
+            }
+            .rank-cell {
+                width: 50px;
+                font-size: 1rem;
+            }
         }
         @media (max-width: 420px) {
             .stats-table {
@@ -508,12 +549,20 @@
             .stats-rank {
                 width: 24px;
             }
+            .ranking-table {
+                font-size: 0.7rem;
+                min-width: 360px;
+            }
+            .ranking-table th,
+            .ranking-table td {
+                padding: 6px 8px;
+            }
         }
-        /* ===== 新增：球星风向标样式结束 ===== */
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- ===== 顶部：标题 + 文件上传 ===== -->
         <div class="header-card">
             <h1>🏀 化学反应实验室 · 双人/三人统治力</h1>
             <div class="sub">共同出战 ≥ 总场次50% 胜率排名 + 零胜率"黑洞组合" + 二人/三人组定制查询</div>
@@ -538,6 +587,46 @@
                 🔽 下拉框支持全量球员查询，二人组/三人组均不可选择重复球员。
             </div>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- 1. 球星风向标（挪到最上面） -->
+        <!-- ============================================================ -->
+        <div class="rank-card">
+            <div class="card-header">
+                <h2>📊 New_BA大联盟球星风向标</h2>
+                <div class="card-badge">实时排名 · 胜率 + 状态</div>
+            </div>
+            <div class="stats-section">
+                <div class="filter-bar">
+                    <div class="match-count" id="starMatchCountDisplay">当前比赛场数：0</div>
+                    <label class="filter-label">
+                        <input type="checkbox" id="filterLowGamesCheckbox">
+                        🧹 过滤低参赛选手
+                    </label>
+                </div>
+                <div class="stats-table-wrap">
+                    <table class="stats-table" id="starStatsTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="rank">排名</th>
+                                <th data-sort="player">球员</th>
+                                <th data-sort="wins">胜场</th>
+                                <th data-sort="losses">负场</th>
+                                <th data-sort="winRate">胜率</th>
+                                <th data-sort="streak">当前状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="starStatsBody">
+                            <tr><td colspan="6" class="empty-message">暂无比赛记录</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 2. 化学反应实验室（二人组 / 三人组 / 最弱 / 查询）全部挪到下面 -->
+        <!-- ============================================================ -->
 
         <!-- 最强二人组 -->
         <div class="rank-card">
@@ -592,41 +681,6 @@
                 </table>
             </div>
         </div>
-
-        <!-- ===== 新增：球星风向标 ===== -->
-        <div class="rank-card">
-            <div class="card-header">
-                <h2>📊 New_BA大联盟球星风向标</h2>
-                <div class="card-badge">实时排名 · 胜率 + 状态</div>
-            </div>
-            <div class="stats-section">
-                <div class="filter-bar">
-                    <div class="match-count" id="starMatchCountDisplay">当前比赛场数：0</div>
-                    <label class="filter-label">
-                        <input type="checkbox" id="filterLowGamesCheckbox">
-                        🧹 过滤低参赛选手
-                    </label>
-                </div>
-                <div class="stats-table-wrap">
-                    <table class="stats-table" id="starStatsTable">
-                        <thead>
-                            <tr>
-                                <th data-sort="rank">排名</th>
-                                <th data-sort="player">球员</th>
-                                <th data-sort="wins">胜场</th>
-                                <th data-sort="losses">负场</th>
-                                <th data-sort="winRate">胜率</th>
-                                <th data-sort="streak">当前状态</th>
-                            </tr>
-                        </thead>
-                        <tbody id="starStatsBody">
-                            <tr><td colspan="6" class="empty-message">暂无比赛记录</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- ===== 球星风向标结束 ===== -->
 
         <!-- 任意二人组查询 -->
         <div class="rank-card">
@@ -962,10 +1016,10 @@
             });
         }
 
-        // ===== 新增：球星风向标排序状态 =====
+        // ===== 球星风向标排序状态 =====
         let starSort = { column: 'winRate', order: 'desc' };
 
-        // ===== 新增：球星风向标 - 计算球员统计数据 =====
+        // ===== 球星风向标 - 计算球员统计数据 =====
         function computePlayerStats(games) {
             const stats = {};
             // 初始化所有在 playerMap 中的球员
@@ -996,7 +1050,7 @@
             return stats;
         }
 
-        // ===== 新增：球星风向标 - 更新表格 =====
+        // ===== 球星风向标 - 更新表格 =====
         function updateStarStats() {
             const tbody = document.getElementById('starStatsBody');
             const totalGames = currentGames.length;
@@ -1129,7 +1183,7 @@
             });
         }
 
-        // ===== 新增：球星风向标 - 排序处理 =====
+        // ===== 球星风向标 - 排序处理 =====
         function handleStarSort(column) {
             if (starSort.column === column) {
                 starSort.order = starSort.order === 'desc' ? 'asc' : 'desc';
@@ -1140,7 +1194,7 @@
             updateStarStats();
         }
 
-        // ===== 新增：球星风向标 - 绑定事件 =====
+        // ===== 球星风向标 - 绑定事件 =====
         function bindStarSortEvents() {
             const ths = document.querySelectorAll('#starStatsTable th');
             ths.forEach(th => {
@@ -1421,7 +1475,7 @@
             e.target.value = '';
         });
 
-        // ===== 新增：绑定球星风向标排序事件 =====
+        // ===== 绑定球星风向标排序事件 =====
         bindStarSortEvents();
 
         // 监听过滤复选框（已经在 bindStarSortEvents 中绑定了 change 事件，但为了确保，再绑一次）
