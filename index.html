@@ -147,14 +147,14 @@
         }
         .ranking-table th {
             background: #fafdff;
-            padding: 16px 18px;
+            padding: 12px 12px;
             text-align: left;
             font-weight: 700;
             color: #1e4a6e;
             border-bottom: 2px solid #e2eaf0;
         }
         .ranking-table td {
-            padding: 14px 18px;
+            padding: 10px 12px;
             border-bottom: 1px solid #ecf3f8;
             vertical-align: middle;
         }
@@ -350,18 +350,19 @@
             font-size: 0.9rem;
         }
         .stats-table th {
-            background: #1a5f7a;
-            color: white;
+            background: #fafdff;
             padding: 12px 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             user-select: none;
             transition: background 0.2s;
             text-align: left;
             white-space: nowrap;
+            color: #1e4a6e;
+            border-bottom: 2px solid #e2eaf0;
         }
         .stats-table th:hover {
-            background: #2b7a9c;
+            background: #edf5f8;
         }
         .stats-table th.sort-asc::after {
             content: " ↑";
@@ -720,7 +721,7 @@
         <div class="rank-card">
             <div class="card-header">
                 <h2>⚡ 最强二人组 · TOP 10</h2>
-                <div class="card-badge">共同出战 ≥ 总场次50%</div>
+                <div class="card-badge">成员个人参赛 ≥ 总场次50%</div>
             </div>
             <div class="table-wrapper">
                 <table class="ranking-table">
@@ -737,11 +738,8 @@
             <div class="card-header">
                 <h2>🎯 最强三人组 · TOP 10</h2>
                 <div style="display: flex; gap: 16px; align-items: center;">
-                    <div class="toggle-switch">
-                        <span>⚙️ 限制≥50%场次</span>
-                        <input type="checkbox" id="tripletFilterToggle">
-                    </div>
-                    <div class="card-badge" id="tripletFilterBadge">当前: 显示所有组合</div>
+                    
+                    <div class="card-badge" >成员个人参赛 ≥ 总场次50%</div>
                 </div>
             </div>
             <div class="table-wrapper">
@@ -758,7 +756,7 @@
         <div class="rank-card">
             <div class="card-header">
                 <h2>💀 最弱二人组 · 零胜率黑洞</h2>
-                <div class="card-badge">胜率0% | 共同场次最多 TOP5</div>
+                <div class="card-badge">成员个人参赛 ≥ 总场次50% | 共同场次最多 TOP5</div>
             </div>
             <div class="table-wrapper">
                 <table class="ranking-table">
@@ -856,7 +854,7 @@
     <script>
         // ========== ==========
         const APP_PASSWORD = 'newba2026';  
-  
+
         const GITHUB_OWNER = 'joes-bot';
         const GITHUB_REPO = 'newba';
         const GITHUB_BRANCH = 'main';
@@ -948,13 +946,39 @@
             return res;
         }
 
-        // 二人组统计
+        // ===== 新增：计算每个球员的总参赛场次（只统计 playerMap 中的球员） =====
+        function computePlayerTotalGames(games) {
+            const playerGames = {};
+            for (const g of games) {
+                const purple = (g.purplePlayers || []).filter(name => playerMap.has(name));
+                const green = (g.greenPlayers || []).filter(name => playerMap.has(name));
+                purple.forEach(name => { playerGames[name] = (playerGames[name] || 0) + 1; });
+                green.forEach(name => { playerGames[name] = (playerGames[name] || 0) + 1; });
+            }
+            return playerGames;
+        }
+
+        // ===== 新增：获取符合资格（个人参赛 ≥ 总场次50%）的球员集合 =====
+        function getQualifiedPlayers(games) {
+            const total = games.length;
+            if (total === 0) return new Set();
+            const threshold = Math.ceil(total * 0.5);
+            const playerGames = computePlayerTotalGames(games);
+            const qualified = new Set();
+            for (const [name, count] of Object.entries(playerGames)) {
+                if (count >= threshold) qualified.add(name);
+            }
+            return qualified;
+        }
+
+        // 二人组统计（只统计 playerMap 中的球员）
         function computePairStats(games) {
             const total = games.length;
             const pairMap = new Map();
             for (const g of games) {
-                const purple = g.purplePlayers || [],
-                    green = g.greenPlayers || [];
+                // 修改：只保留 playerMap 中存在的球员
+                const purple = (g.purplePlayers || []).filter(name => playerMap.has(name));
+                const green = (g.greenPlayers || []).filter(name => playerMap.has(name));
                 const purpleWin = g.winner === 'purple',
                     greenWin = g.winner === 'green';
                 if (purple.length >= 2) {
@@ -977,12 +1001,14 @@
             return { pairMap, total };
         }
 
+        // 三人组统计（只统计 playerMap 中的球员）
         function computeTripletStats(games) {
             const total = games.length;
             const tripMap = new Map();
             for (const g of games) {
-                const purple = g.purplePlayers || [],
-                    green = g.greenPlayers || [];
+                // 修改：只保留 playerMap 中存在的球员
+                const purple = (g.purplePlayers || []).filter(name => playerMap.has(name));
+                const green = (g.greenPlayers || []).filter(name => playerMap.has(name));
                 const purpleWin = g.winner === 'purple',
                     greenWin = g.winner === 'green';
                 if (purple.length >= 3) {
@@ -1005,29 +1031,13 @@
             return { tripMap, total };
         }
 
+        // ===== 修改：最强二人组 - 只要求成员个人参赛 ≥ 50%，不限制组合共同出场次数 =====
         function getTopPairs(pairMap, totalGames) {
-            const minReq = Math.ceil(totalGames * 0.5);
+            const qualifiedPlayers = getQualifiedPlayers(currentGames);
             const list = [];
             for (const [key, stat] of pairMap.entries()) {
-                if (stat.apps >= minReq) list.push({ ...stat, winRate: stat.wins / stat.apps });
-            }
-            list.sort((a, b) => {
-                if (Math.abs(a.winRate - b.winRate) > 1e-7) return b.winRate - a.winRate;
-                if (a.wins !== b.wins) return b.wins - a.wins;
-                return b.apps - a.apps;
-            });
-            return list.slice(0, 10);
-        }
-
-        function getTopTriplets(tripMap, totalGames, applyFilter) {
-            let list = [];
-            if (applyFilter) {
-                const minReq = Math.ceil(totalGames * 0.5);
-                for (const [key, stat] of tripMap.entries()) {
-                    if (stat.apps >= minReq) list.push({ ...stat, winRate: stat.wins / stat.apps });
-                }
-            } else {
-                for (const [key, stat] of tripMap.entries()) {
+                const players = key.split(';');
+                if (players.every(p => qualifiedPlayers.has(p))) {
                     list.push({ ...stat, winRate: stat.wins / stat.apps });
                 }
             }
@@ -1039,10 +1049,33 @@
             return list.slice(0, 10);
         }
 
-        function getWorstZeroPairs(pairMap) {
+        // ===== 修改：最强三人组 - 只要求成员个人参赛 ≥ 50% =====
+        function getTopTriplets(tripMap, totalGames, applyFilter) {
+            const qualifiedPlayers = getQualifiedPlayers(currentGames);
+            let list = [];
+            for (const [key, stat] of tripMap.entries()) {
+                const players = key.split(';');
+                if (players.every(p => qualifiedPlayers.has(p))) {
+                    list.push({ ...stat, winRate: stat.wins / stat.apps });
+                }
+            }
+            list.sort((a, b) => {
+                if (Math.abs(a.winRate - b.winRate) > 1e-7) return b.winRate - a.winRate;
+                if (a.wins !== b.wins) return b.wins - a.wins;
+                return b.apps - a.apps;
+            });
+            return list.slice(0, 10);
+        }
+
+        // ===== 修改：最弱二人组 - 成员个人参赛 ≥ 50%，胜率0%，按共同出场次数排序 =====
+        function getWorstZeroPairs(pairMap, totalGames) {
+            const qualifiedPlayers = getQualifiedPlayers(currentGames);
             const zero = [];
             for (const [key, stat] of pairMap.entries()) {
-                if (stat.wins === 0 && stat.apps > 0) zero.push({ ...stat, winRate: 0 });
+                const players = key.split(';');
+                if (players.every(p => qualifiedPlayers.has(p)) && stat.wins === 0 && stat.apps > 0) {
+                    zero.push({ ...stat, winRate: 0 });
+                }
             }
             zero.sort((a, b) => b.apps - a.apps);
             return zero.slice(0, 5);
@@ -1051,7 +1084,7 @@
         // 全局数据引用
         let currentGames = [];
 
-        // 渲染二人组（固定应用门槛）
+        // 渲染二人组
         function renderPairRanking(games) {
             if (!games.length) {
                 document.getElementById('pair-table-body').innerHTML = '<tr><td colspan="5" class="empty-message">暂无数据</td></tr>';
@@ -1063,8 +1096,8 @@
             document.getElementById('qualified-pairs').innerText = topPairs.length;
             const tbody = document.getElementById('pair-table-body');
             if (topPairs.length === 0) {
-                tbody.innerHTML =
-                    `<tr><td colspan="5" class="empty-message">无二人组达到门槛(≥${Math.ceil(total * 0.5)}场)</td></tr>`;
+                const threshold = Math.ceil(total * 0.5);
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-message">无符合资格的组合（个人参赛需 ≥ ${threshold} 场）</td></tr>`;
                 return;
             }
             let html = '';
@@ -1083,7 +1116,7 @@
             tbody.innerHTML = html;
         }
 
-        // 渲染三人组（根据开关状态决定是否过滤）
+        // 渲染三人组
         function renderTripletRanking(games, applyFilter) {
             if (!games.length) {
                 document.getElementById('triplet-table-body').innerHTML = '<tr><td colspan="5" class="empty-message">暂无数据</td></tr>';
@@ -1095,8 +1128,8 @@
             document.getElementById('qualified-triplets').innerText = topTriplets.length;
             const tbody = document.getElementById('triplet-table-body');
             if (topTriplets.length === 0) {
-                const msg = applyFilter ? `无三人组达到门槛(≥${Math.ceil(total * 0.5)}场)` : '暂无三人组数据';
-                tbody.innerHTML = `<tr><td colspan="5" class="empty-message">${msg}</td></tr>`;
+                const threshold = Math.ceil(total * 0.5);
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-message">无符合资格的组合（个人参赛需 ≥ ${threshold} 场）</td></tr>`;
                 return;
             }
             let html = '';
@@ -1119,16 +1152,17 @@
             if (badge) badge.innerText = applyFilter ? '当前: 仅显示≥50%场次' : '当前: 显示所有组合';
         }
 
+        // 渲染最弱二人组
         function renderWorstPairs(games) {
             if (!games.length) {
                 document.getElementById('worst-pair-body').innerHTML = '<tr><td colspan="5" class="empty-message">暂无数据</td></tr>';
                 return;
             }
-            const { pairMap } = computePairStats(games);
-            const worst = getWorstZeroPairs(pairMap);
+            const { pairMap, total } = computePairStats(games);
+            const worst = getWorstZeroPairs(pairMap, total);
             const tbody = document.getElementById('worst-pair-body');
             if (worst.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-message">✨ 没有零胜组合，每个组合至少赢过一场</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-message">✨ 没有符合条件的零胜组合</td></tr>';
                 return;
             }
             let html = '';
@@ -1179,8 +1213,9 @@
             const sorted = [...games].sort((a, b) => a.date.localeCompare(b.date));
             for (const rec of sorted) {
                 const winner = rec.winner;
-                const purple = rec.purplePlayers || [];
-                const green = rec.greenPlayers || [];
+                // 修改：只统计 playerMap 中的球员
+                const purple = (rec.purplePlayers || []).filter(name => playerMap.has(name));
+                const green = (rec.greenPlayers || []).filter(name => playerMap.has(name));
                 for (const name of purple) {
                     if (stats[name]) {
                         if (winner === 'purple') stats[name].wins++;
@@ -1327,7 +1362,7 @@
 
         // ===== 球星风向标 - 排序处理 =====
         function handleStarSort(column) {
-           // if (!checkPassword()) return;
+          //  if (!checkPassword()) return;
             if (starSort.column === column) {
                 starSort.order = starSort.order === 'desc' ? 'asc' : 'desc';
             } else {
@@ -1358,8 +1393,8 @@
             updateGlobalStats(currentGames);
             renderPairRanking(currentGames);
             renderWorstPairs(currentGames);
-            const filterEnabled = document.getElementById('tripletFilterToggle').checked;
-            renderTripletRanking(currentGames, filterEnabled);
+          //  const filterEnabled = document.getElementById('tripletFilterToggle').checked;
+            renderTripletRanking(currentGames, false);
             document.getElementById('file-name').innerHTML = `📄 当前数据 (${currentGames.length}场)`;
             updateStarStats();
         }
@@ -1779,10 +1814,10 @@
         }
 
         // ===== 监听开关 =====
-        const filterToggle = document.getElementById('tripletFilterToggle');
-        filterToggle.addEventListener('change', () => {
-            refreshAll();
-        });
+    //    const filterToggle = document.getElementById('tripletFilterToggle');
+       // filterToggle.addEventListener('change', () => {
+          //  refreshAll();
+        //});
 
         // ===== 查询按钮绑定 =====
         document.getElementById('queryBtn').addEventListener('click', () => queryPair(currentGames));
